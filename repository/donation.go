@@ -94,3 +94,4 @@ func DeleteDonation(db *sql.DB, id int) error {
 	}
 	return nil
 }
+

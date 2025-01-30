@@ -6,6 +6,7 @@ import (
 	"errors"
 )
 
+
 func CreateRefugee(db *sql.DB, refugee structs.Refugee) error {
 	sqlQuery := `INSERT INTO refugees (name, age, condition, needs, shelter_id, disaster_id, created_at, updated_at)
 	             VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING id, created_at, updated_at`
@@ -18,6 +19,7 @@ func CreateRefugee(db *sql.DB, refugee structs.Refugee) error {
 
 	return nil
 }
+
 
 func GetAllRefugees(db *sql.DB) ([]structs.Refugee, error) {
 	query := `SELECT id, name, age, condition, needs, shelter_id, disaster_id, created_at, updated_at FROM refugees`
@@ -40,6 +42,7 @@ func GetAllRefugees(db *sql.DB) ([]structs.Refugee, error) {
 	return refugees, nil
 }
 
+
 func GetRefugeeByID(db *sql.DB, id int) (structs.Refugee, error) {
 	query := `SELECT id, name, age, condition, needs, shelter_id, disaster_id, created_at, updated_at FROM refugees WHERE id = $1`
 	var refugee structs.Refugee
@@ -54,6 +57,7 @@ func GetRefugeeByID(db *sql.DB, id int) (structs.Refugee, error) {
 	return refugee, nil
 }
 
+
 func UpdateRefugee(db *sql.DB, refugee structs.Refugee) error {
 	sqlQuery := `UPDATE refugees SET name=$1, age=$2, condition=$3, needs=$4, shelter_id=$5, disaster_id=$6, updated_at=NOW() WHERE id=$7`
 	_, err := db.Exec(sqlQuery, refugee.Name, refugee.Age, refugee.Condition, refugee.Needs, refugee.ShelterID, refugee.DisasterID, refugee.ID)
@@ -63,6 +67,7 @@ func UpdateRefugee(db *sql.DB, refugee structs.Refugee) error {
 	return nil
 }
 
+
 func DeleteRefugee(db *sql.DB, id int) error {
 	sqlQuery := `DELETE FROM refugees WHERE id=$1`
 	_, err := db.Exec(sqlQuery, id)
@@ -70,4 +75,25 @@ func DeleteRefugee(db *sql.DB, id int) error {
 		return err
 	}
 	return nil
+}
+
+func GetDistributionLogsByRefugeeID(db *sql.DB, refugeeID int) ([]structs.DistributionLog, error) {
+	var logs []structs.DistributionLog
+	query := `SELECT id, logistic_id, origin, destination, sender_name, recipient_name, quantity_sent, sent_at, created_at, updated_at 
+	          FROM distribution_logs WHERE recipient_name = (SELECT name FROM refugees WHERE id = $1)`
+	rows, err := db.Query(query, refugeeID)
+	if err != nil {
+		return logs, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var log structs.DistributionLog
+		err := rows.Scan(&log.ID, &log.LogisticID, &log.Origin, &log.Destination, &log.SenderName, &log.RecipientName, &log.QuantitySent, &log.SentAt, &log.CreatedAt, &log.UpdatedAt)
+		if err != nil {
+			return logs, err
+		}
+		logs = append(logs, log)
+	}
+	return logs, nil
 }

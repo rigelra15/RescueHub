@@ -104,3 +104,109 @@ func DeleteDisaster(db *sql.DB, id int) error {
 	}
 	return nil
 }
+
+func GetSheltersByDisasterID(db *sql.DB, disasterID int) ([]structs.Shelter, error) {
+	query := `SELECT id, disaster_id, name, location, capacity_total, capacity_remaining, emergency_needs, created_at, updated_at FROM shelters WHERE disaster_id = $1`
+	rows, err := db.Query(query, disasterID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var shelters []structs.Shelter
+	for rows.Next() {
+		var shelter structs.Shelter
+		err := rows.Scan(&shelter.ID, &shelter.DisasterID, &shelter.Name, &shelter.Location, &shelter.CapacityTotal, &shelter.CapacityRemaining, &shelter.EmergencyNeeds, &shelter.CreatedAt, &shelter.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		shelters = append(shelters, shelter)
+	}
+	return shelters, nil
+}
+
+func GetVolunteersByDisasterID(db *sql.DB, disasterID int) ([]structs.Volunteer, error) {
+	var volunteers []structs.Volunteer
+	query := `SELECT id, user_id, disaster_id, skill, location, status, created_at, updated_at 
+	          FROM volunteers WHERE disaster_id = $1`
+	rows, err := db.Query(query, disasterID)
+	if err != nil {
+		return volunteers, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var volunteer structs.Volunteer
+		err := rows.Scan(&volunteer.ID, &volunteer.UserID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
+		if err != nil {
+			return volunteers, err
+		}
+		volunteers = append(volunteers, volunteer)
+	}
+	return volunteers, nil
+}
+
+func GetLogisticsByDisasterID(db *sql.DB, disasterID int) ([]structs.Logistic, error) {
+	var logistics []structs.Logistic
+	query := `SELECT id, type, quantity, status, disaster_id, created_at, updated_at 
+	          FROM logistics WHERE disaster_id = $1`
+	rows, err := db.Query(query, disasterID)
+	if err != nil {
+		return logistics, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var logistic structs.Logistic
+		err := rows.Scan(&logistic.ID, &logistic.Type, &logistic.Quantity, &logistic.Status, &logistic.DisasterID, &logistic.CreatedAt, &logistic.UpdatedAt)
+		if err != nil {
+			return logistics, err
+		}
+		logistics = append(logistics, logistic)
+	}
+	return logistics, nil
+}
+
+func GetEmergencyReportsByDisasterID(db *sql.DB, disasterID int) ([]structs.EmergencyReport, error) {
+	var reports []structs.EmergencyReport
+	query := `SELECT id, user_id, disaster_id, description, location, created_at, updated_at 
+	          FROM emergency_reports WHERE disaster_id = $1`
+	rows, err := db.Query(query, disasterID)
+	if err != nil {
+		return reports, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var report structs.EmergencyReport
+		err := rows.Scan(&report.ID, &report.UserID, &report.DisasterID, &report.Description, &report.Location, &report.CreatedAt, &report.UpdatedAt)
+		if err != nil {
+			return reports, err
+		}
+		reports = append(reports, report)
+	}
+	return reports, nil
+}
+
+func GetEvacuationRoutesByDisasterID(db *sql.DB, disasterID int) ([]structs.EvacuationRoute, error) {
+	var routes []structs.EvacuationRoute
+	query := `SELECT id, disaster_id, origin, destination, distance, route, status, created_at, updated_at 
+	          FROM evacuation_routes WHERE disaster_id = $1`
+	rows, err := db.Query(query, disasterID)
+	if err != nil {
+		return routes, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var route structs.EvacuationRoute
+		err := rows.Scan(&route.ID, &route.DisasterID, &route.Origin, &route.Destination, &route.Distance, &route.Route, &route.Status, &route.CreatedAt, &route.UpdatedAt)
+		if err != nil {
+			return routes, err
+		}
+		routes = append(routes, route)
+	}
+	return routes, nil
+}

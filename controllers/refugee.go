@@ -200,3 +200,35 @@ func DeleteRefugee(c *gin.Context) {
 		"message": "Data pengungsi berhasil dihapus",
 	})
 }
+
+// GetDistributionLogsByRefugeeID godoc
+// @Summary Get distribution logs by refugee ID
+// @Description Menampilkan daftar distribusi bantuan yang diterima oleh pengungsi tertentu
+// @Tags Refugee
+// @Produce json
+// @Param id path int true "Refugee ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Router /refugees/{id}/distribution-logs [get]
+func GetDistributionLogsByRefugeeID(c *gin.Context) {
+	refugeeID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID pengungsi tidak valid"})
+		return
+	}
+
+	logs, err := repository.GetDistributionLogsByRefugeeID(database.DbConnection, refugeeID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan catatan distribusi bantuan"})
+		return
+	}
+
+	if len(logs) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada distribusi bantuan untuk pengungsi ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": logs})
+}

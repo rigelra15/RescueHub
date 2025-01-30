@@ -71,3 +71,45 @@ func DeleteShelter(db *sql.DB, id int) error {
 	}
 	return nil
 }
+
+func GetRefugeesByShelterID(db *sql.DB, shelterID int) ([]structs.Refugee, error) {
+	var refugees []structs.Refugee
+	query := `SELECT id, disaster_id, name, age, condition, needs, shelter_id, created_at, updated_at 
+	          FROM refugees WHERE shelter_id = $1`
+	rows, err := db.Query(query, shelterID)
+	if err != nil {
+		return refugees, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var refugee structs.Refugee
+		err := rows.Scan(&refugee.ID, &refugee.DisasterID, &refugee.Name, &refugee.Age, &refugee.Condition, &refugee.Needs, &refugee.ShelterID, &refugee.CreatedAt, &refugee.UpdatedAt)
+		if err != nil {
+			return refugees, err
+		}
+		refugees = append(refugees, refugee)
+	}
+	return refugees, nil
+}
+
+func GetLogisticsByShelterID(db *sql.DB, shelterID int) ([]structs.Logistic, error) {
+	var logistics []structs.Logistic
+	query := `SELECT id, type, quantity, status, disaster_id, created_at, updated_at 
+	          FROM logistics WHERE disaster_id IN (SELECT disaster_id FROM shelters WHERE id = $1)`
+	rows, err := db.Query(query, shelterID)
+	if err != nil {
+		return logistics, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var logistic structs.Logistic
+		err := rows.Scan(&logistic.ID, &logistic.Type, &logistic.Quantity, &logistic.Status, &logistic.DisasterID, &logistic.CreatedAt, &logistic.UpdatedAt)
+		if err != nil {
+			return logistics, err
+		}
+		logistics = append(logistics, logistic)
+	}
+	return logistics, nil
+}

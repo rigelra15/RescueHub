@@ -403,7 +403,7 @@ func DeleteUser(c *gin.Context) {
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
 // @Security BearerAuth
-// @Router /users/info/{id} [put]
+// @Router /users/{id}/edit-info [put]
 func UpdateUserInfoWithoutEmail(c *gin.Context) {
 	var input structs.UpdateUserInfoWithoutEmail
 	id, err := strconv.Atoi(c.Param("id"))
@@ -447,4 +447,70 @@ func UpdateUserInfoWithoutEmail(c *gin.Context) {
 		"message": "User berhasil diperbarui",
 	})
 	
+}
+
+// GetDonationsByUserID godoc
+// @Summary Get donations by user ID
+// @Description Menampilkan daftar donasi yang diberikan oleh user tertentu
+// @Tags Users
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /users/{id}/donations [get]
+func GetDonationsByUserID(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID user tidak valid"})
+		return
+	}
+
+	donations, err := repository.GetDonationsByUserID(database.DbConnection, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan daftar donasi"})
+		return
+	}
+
+	if len(donations) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada donasi yang tercatat untuk user ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": donations})
+}
+
+// GetEmergencyReportsByUserID godoc
+// @Summary Get emergency reports by user ID
+// @Description Menampilkan semua laporan darurat yang dikirim oleh pengguna tertentu
+// @Tags Users
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /users/{id}/emergency-reports [get]
+func GetEmergencyReportsByUserID(c *gin.Context) {
+	userID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID user tidak valid"})
+		return
+	}
+
+	reports, err := repository.GetEmergencyReportsByUserID(database.DbConnection, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan laporan darurat"})
+		return
+	}
+
+	if len(reports) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada laporan darurat yang dibuat oleh pengguna ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": reports})
 }

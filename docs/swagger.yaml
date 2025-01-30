@@ -377,6 +377,167 @@ paths:
       summary: Update disaster
       tags:
       - Disaster
+  /disasters/{id}/emergency-reports:
+    get:
+      description: Menampilkan daftar laporan darurat untuk bencana tertentu
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get emergency reports by disaster ID
+      tags:
+      - Disaster
+  /disasters/{id}/evacuation-routes:
+    get:
+      description: Menampilkan daftar jalur evakuasi untuk bencana tertentu
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get evacuation routes by disaster ID
+      tags:
+      - Disaster
+  /disasters/{id}/logistics:
+    get:
+      description: Menampilkan daftar logistik untuk bencana tertentu
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get logistics by disaster ID
+      tags:
+      - Disaster
+  /disasters/{id}/shelters:
+    get:
+      description: Mendapatkan shelter berdasarkan ID bencana
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get shelters by disaster ID
+      tags:
+      - Disaster
+  /disasters/{id}/volunteers:
+    get:
+      description: Menampilkan daftar relawan yang bekerja dalam suatu bencana
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get volunteers by disaster ID
+      tags:
+      - Disaster
   /distribution_logs:
     get:
       consumes:
@@ -1235,6 +1396,40 @@ paths:
       summary: Update a refugee
       tags:
       - Refugee
+  /refugees/{id}/distribution-logs:
+    get:
+      description: Menampilkan daftar distribusi bantuan yang diterima oleh pengungsi
+        tertentu
+      parameters:
+      - description: Refugee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get distribution logs by refugee ID
+      tags:
+      - Refugee
   /shelters:
     get:
       consumes:
@@ -1372,6 +1567,72 @@ paths:
           schema:
             $ref: '#/definitions/structs.APIResponse'
       summary: Update a shelter
+      tags:
+      - Shelter
+  /shelters/{id}/logistics:
+    get:
+      description: Menampilkan daftar bantuan logistik yang tersedia di shelter tertentu
+      parameters:
+      - description: Shelter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get logistics by shelter ID
+      tags:
+      - Shelter
+  /shelters/{id}/refugees:
+    get:
+      description: Menampilkan daftar pengungsi dalam shelter tertentu
+      parameters:
+      - description: Shelter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get refugees by shelter ID
       tags:
       - Shelter
   /users:
@@ -1523,18 +1784,15 @@ paths:
       summary: Update user
       tags:
       - Users
-  /users/enable-2fa:
-    put:
-      consumes:
-      - application/json
-      description: Mengaktifkan atau menonaktifkan 2FA
+  /users/{id}/donations:
+    get:
+      description: Menampilkan daftar donasi yang diberikan oleh user tertentu
       parameters:
-      - description: User 2FA status
-        in: body
-        name: user
+      - description: User ID
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/structs.Enable2FA'
+        type: integer
       produces:
       - application/json
       responses:
@@ -1546,8 +1804,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/structs.APIResponse'
-        "401":
-          description: Unauthorized
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/structs.APIResponse'
         "500":
@@ -1556,10 +1814,10 @@ paths:
             $ref: '#/definitions/structs.APIResponse'
       security:
       - BearerAuth: []
-      summary: Enable 2FA
+      summary: Get donations by user ID
       tags:
       - Users
-  /users/info/{id}:
+  /users/{id}/edit-info:
     put:
       consumes:
       - application/json
@@ -1598,6 +1856,75 @@ paths:
       security:
       - BearerAuth: []
       summary: Update user without email
+      tags:
+      - Users
+  /users/{id}/emergency-reports:
+    get:
+      description: Menampilkan semua laporan darurat yang dikirim oleh pengguna tertentu
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get emergency reports by user ID
+      tags:
+      - Users
+  /users/enable-2fa:
+    put:
+      consumes:
+      - application/json
+      description: Mengaktifkan atau menonaktifkan 2FA
+      parameters:
+      - description: User 2FA status
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Enable2FA'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Enable 2FA
       tags:
       - Users
   /users/login:

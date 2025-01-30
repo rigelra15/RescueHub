@@ -181,3 +181,55 @@ func RequireRoles(errorMessage string, allowedRoles ...string) gin.HandlerFunc {
 		c.Abort()
 	}
 }
+
+func RequireVolunteerOrRole(messages string, requiredRole string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, roleExists := c.Get("role")
+		email, emailExists := c.Get("email")
+
+		if !roleExists || !emailExists {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Tidak memiliki akses",
+			})
+			c.Abort()
+			return
+		}
+
+		// Jika user adalah admin, izinkan langsung
+		if role.(string) == requiredRole {
+			c.Next()
+			return
+		}
+
+		// Cek apakah user adalah volunteer dengan query SQL
+		user, err := repository.GetUserByEmail(database.DbConnection, email.(string))
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Pengguna tidak ditemukan",
+			})
+			c.Abort()
+			return
+		}
+
+		isVolunteer, err := repository.IsUserVolunteer(database.DbConnection, user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Gagal memeriksa status volunteer",
+			})
+			c.Abort()
+			return
+		}
+
+		// Jika user adalah volunteer, izinkan akses
+		if isVolunteer {
+			c.Next()
+			return
+		}
+
+		// Jika bukan volunteer atau role tertentu, tolak akses
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": messages,
+		})
+		c.Abort()
+	}
+}

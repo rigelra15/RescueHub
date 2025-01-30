@@ -222,3 +222,173 @@ func DeleteDisaster(c *gin.Context) {
 		"message": "Berhasil menghapus laporan bencana",
 	})
 }
+
+// GetDisasterShelters godoc
+// @Summary Get shelters by disaster ID
+// @Description Mendapatkan shelter berdasarkan ID bencana
+// @Tags Disaster
+// @Produce json
+// @Param id path int true "Disaster ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /disasters/{id}/shelters [get]
+func GetSheltersByDisasterID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID tidak valid",
+		})
+		return
+	}
+
+	shelters, err := repository.GetSheltersByDisasterID(database.DbConnection, id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Shelter tidak ditemukan",
+		})
+		return
+	}
+
+	if len(shelters) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Tidak ada shelter",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": shelters,
+	})
+}
+
+// GetVolunteersByDisasterID godoc
+// @Summary Get volunteers by disaster ID
+// @Description Menampilkan daftar relawan yang bekerja dalam suatu bencana
+// @Tags Disaster
+// @Produce json
+// @Param id path int true "Disaster ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /disasters/{id}/volunteers [get]
+func GetVolunteersByDisasterID(c *gin.Context) {
+	disasterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID bencana tidak valid"})
+		return
+	}
+
+	volunteers, err := repository.GetVolunteersByDisasterID(database.DbConnection, disasterID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan daftar relawan"})
+		return
+	}
+
+	if len(volunteers) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada relawan yang terdaftar untuk bencana ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": volunteers})
+}
+
+// GetLogisticsByDisasterID godoc
+// @Summary Get logistics by disaster ID
+// @Description Menampilkan daftar logistik untuk bencana tertentu
+// @Tags Disaster
+// @Produce json
+// @Param id path int true "Disaster ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /disasters/{id}/logistics [get]
+func GetLogisticsByDisasterID(c *gin.Context) {
+	disasterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID bencana tidak valid"})
+		return
+	}
+
+	logistics, err := repository.GetLogisticsByDisasterID(database.DbConnection, disasterID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan daftar logistik"})
+		return
+	}
+
+	if len(logistics) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada logistik yang tersedia untuk bencana ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": logistics})
+}
+
+// GetEmergencyReportsByDisasterID godoc
+// @Summary Get emergency reports by disaster ID
+// @Description Menampilkan daftar laporan darurat untuk bencana tertentu
+// @Tags Disaster
+// @Produce json
+// @Param id path int true "Disaster ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Router /disasters/{id}/emergency-reports [get]
+func GetEmergencyReportsByDisasterID(c *gin.Context) {
+	disasterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID bencana tidak valid"})
+		return
+	}
+
+	reports, err := repository.GetEmergencyReportsByDisasterID(database.DbConnection, disasterID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan laporan darurat"})
+		return
+	}
+
+	if len(reports) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada laporan darurat untuk bencana ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": reports})
+}
+
+// GetEvacuationRoutesByDisasterID godoc
+// @Summary Get evacuation routes by disaster ID
+// @Description Menampilkan daftar jalur evakuasi untuk bencana tertentu
+// @Tags Disaster
+// @Produce json
+// @Param id path int true "Disaster ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Router /disasters/{id}/evacuation-routes [get]
+func GetEvacuationRoutesByDisasterID(c *gin.Context) {
+	disasterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID bencana tidak valid"})
+		return
+	}
+
+	routes, err := repository.GetEvacuationRoutesByDisasterID(database.DbConnection, disasterID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan daftar jalur evakuasi"})
+		return
+	}
+
+	if len(routes) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada jalur evakuasi untuk bencana ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": routes})
+}

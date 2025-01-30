@@ -190,3 +190,67 @@ func DeleteShelter(c *gin.Context) {
 		"message": "Shelter berhasil dihapus",
 	})
 }
+
+// GetRefugeesByShelterID godoc
+// @Summary Get refugees by shelter ID
+// @Description Menampilkan daftar pengungsi dalam shelter tertentu
+// @Tags Shelter
+// @Produce json
+// @Param id path int true "Shelter ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Router /shelters/{id}/refugees [get]
+func GetRefugeesByShelterID(c *gin.Context) {
+	shelterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID shelter tidak valid"})
+		return
+	}
+
+	refugees, err := repository.GetRefugeesByShelterID(database.DbConnection, shelterID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan daftar pengungsi"})
+		return
+	}
+
+	if len(refugees) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada pengungsi yang terdaftar dalam shelter ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": refugees})
+}
+
+// GetLogisticsByShelterID godoc
+// @Summary Get logistics by shelter ID
+// @Description Menampilkan daftar bantuan logistik yang tersedia di shelter tertentu
+// @Tags Shelter
+// @Produce json
+// @Param id path int true "Shelter ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Router /shelters/{id}/logistics [get]
+func GetLogisticsByShelterID(c *gin.Context) {
+	shelterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID shelter tidak valid"})
+		return
+	}
+
+	logistics, err := repository.GetLogisticsByShelterID(database.DbConnection, shelterID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mendapatkan daftar logistik"})
+		return
+	}
+
+	if len(logistics) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tidak ada bantuan logistik di shelter ini"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"result": logistics})
+}

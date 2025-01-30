@@ -95,90 +95,267 @@ func main() {
 			userRoutes.POST("/", controllers.CreateUser)
 			userRoutes.POST("/login", controllers.Login)
 			userRoutes.POST("/verify-otp", controllers.VerifyOTP)
-			
+
 			protectedUserRoutes := userRoutes.Group("/", middlewares.JWTAuthMiddleware())
 			{
-				protectedUserRoutes.PUT("/enable-2fa", middlewares.RequireSelfFor2FA(), controllers.Enable2FA)
-				protectedUserRoutes.PUT("/info/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa mengedit info akun Anda sendiri", "admin"), controllers.UpdateUserInfoWithoutEmail)
-				protectedUserRoutes.GET("/", middlewares.RequireRoles("Akses ditolak, hanya admin dan donor yang dapat melihat daftar pengguna","admin"), controllers.GetAllUsers)
+				protectedUserRoutes.GET("/", middlewares.RequireRoles("Akses ditolak, hanya admin dan donor yang dapat melihat daftar pengguna","admin", "donor"), controllers.GetAllUsers)
 				protectedUserRoutes.GET("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa melihat info akun Anda sendiri", "admin"), controllers.GetUserByID)
 				protectedUserRoutes.PUT("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa mengedit akun Anda sendiri", "admin"), controllers.UpdateUser)
 				protectedUserRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa menghapus akun Anda sendiri", "admin"), controllers.DeleteUser)
+				protectedUserRoutes.PUT("/enable-2fa", middlewares.RequireSelfFor2FA(), controllers.Enable2FA)
+				protectedUserRoutes.PUT("/:id/edit-info", middlewares.RequireSameUserOrRole("Anda hanya bisa mengedit info akun Anda sendiri", "admin"), controllers.UpdateUserInfoWithoutEmail)
+				protectedUserRoutes.GET("/:id/emergency-reports", middlewares.RequireSameUserOrRole("Anda hanya bisa melihat laporan darurat Anda sendiri", "user"), controllers.GetEmergencyReportsByUserID)
 			}
 		}
 
 		disasterRoutes := api.Group("/disasters")
 		{
-			disasterRoutes.POST("/", controllers.CreateDisaster)
 			disasterRoutes.GET("/", controllers.GetAllDisasters)
 			disasterRoutes.GET("/:id", controllers.GetDisasterByID)
-			disasterRoutes.PUT("/:id", controllers.UpdateDisaster)
-			disasterRoutes.DELETE("/:id", controllers.DeleteDisaster)
+			disasterRoutes.GET("/:id/emergency-reports", controllers.GetEmergencyReportsByDisasterID)
+			disasterRoutes.GET("/:id/evacuation-routes", controllers.GetEvacuationRoutesByDisasterID)
+
+			protectedDisasterRoutes := disasterRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedDisasterRoutes.POST("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa melaporkan bencana",
+					"admin",
+				), controllers.CreateDisaster)
+
+				protectedDisasterRoutes.PUT("/:id", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mengedit laporan bencana",
+					"admin",
+				), controllers.UpdateDisaster)
+
+				protectedDisasterRoutes.DELETE("/:id", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin yang bisa menghapus laporan bencana",
+					"admin",
+				), controllers.DeleteDisaster)
+
+				protectedDisasterRoutes.GET("/:id/shelters", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa melihat daftar shelter",
+					"admin",
+				), controllers.GetSheltersByDisasterID)
+
+				protectedDisasterRoutes.GET("/:id/volunteers", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa melihat daftar relawan",
+					"admin",
+				), controllers.GetVolunteersByDisasterID)
+
+				protectedDisasterRoutes.GET("/:id/logistics", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa melihat daftar logistik",
+					"admin",
+				), controllers.GetLogisticsByDisasterID)		
+			}
 		}
 
 		shelterRoutes := api.Group("/shelters")
 		{
-			shelterRoutes.POST("/", controllers.CreateShelter)
 			shelterRoutes.GET("/", controllers.GetAllShelters)
 			shelterRoutes.GET("/:id", controllers.GetShelterByID)
-			shelterRoutes.PUT("/:id", controllers.UpdateShelter)
-			shelterRoutes.DELETE("/:id", controllers.DeleteShelter)
+			shelterRoutes.GET("/:id/refugees", controllers.GetRefugeesByShelterID)
+			shelterRoutes.GET("/:id/logistics", controllers.GetLogisticsByShelterID)
+
+			protectedShelterRoutes := shelterRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedShelterRoutes.POST("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa menambahkan shelter",
+					"admin",
+				), controllers.CreateShelter)
+
+				protectedShelterRoutes.PUT("/:id", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mengedit shelter",
+					"admin",
+				), controllers.UpdateShelter)
+
+				protectedShelterRoutes.DELETE("/:id", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin yang bisa menghapus shelter",
+					"admin",
+				), controllers.DeleteShelter)
+			}
 		}
+
 		refugeeRoutes := api.Group("/refugees")
 		{
-			refugeeRoutes.POST("/", controllers.CreateRefugee)
 			refugeeRoutes.GET("/", controllers.GetAllRefugees)
 			refugeeRoutes.GET("/:id", controllers.GetRefugeeByID)
-			refugeeRoutes.PUT("/:id", controllers.UpdateRefugee)
-			refugeeRoutes.DELETE("/:id", controllers.DeleteRefugee)
+			refugeeRoutes.GET("/:id/distribution-logs", controllers.GetDistributionLogsByRefugeeID)
+
+			protectedRefugeeRoutes := refugeeRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedRefugeeRoutes.POST("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mencatat pengungsi",
+					"admin",
+				), controllers.CreateRefugee)
+
+				protectedRefugeeRoutes.PUT("/:id", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin yang bisa mengedit data pengungsi",
+					"admin",
+				), controllers.UpdateRefugee)
+
+				protectedRefugeeRoutes.DELETE("/:id", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin yang bisa menghapus data pengungsi",
+					"admin",
+				), controllers.DeleteRefugee)
+			}
 		}
+
 		logisticRoutes := api.Group("/logistics")
 		{
-			logisticRoutes.POST("/", controllers.CreateLogistic)
 			logisticRoutes.GET("/", controllers.GetAllLogistics)
 			logisticRoutes.GET("/:id", controllers.GetLogisticByID)
-			logisticRoutes.PUT("/:id", controllers.UpdateLogistic)
-			logisticRoutes.DELETE("/:id", controllers.DeleteLogistic)
+
+			protectedLogisticRoutes := logisticRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedLogisticRoutes.POST("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mencatat logistik",
+					"admin",
+				), controllers.CreateLogistic)
+
+				protectedLogisticRoutes.PUT("/:id", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mengedit data logistik",
+					"admin",
+				), controllers.UpdateLogistic)
+
+				protectedLogisticRoutes.DELETE("/:id", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin yang bisa menghapus data logistik",
+					"admin",
+				), controllers.DeleteLogistic)
+			}
 		}
+
 		distributionLogRoutes := api.Group("/distribution_logs")
 		{
-			distributionLogRoutes.POST("/", controllers.CreateDistributionLog)
 			distributionLogRoutes.GET("/", controllers.GetAllDistributionLogs)
 			distributionLogRoutes.GET("/:id", controllers.GetDistributionLogByID)
-			distributionLogRoutes.PUT("/:id", controllers.UpdateDistributionLog)
-			distributionLogRoutes.DELETE("/:id", controllers.DeleteDistributionLog)
+
+			protectedDistributionLogRoutes := distributionLogRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedDistributionLogRoutes.POST("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mencatat distribusi bantuan",
+					"admin",
+				), controllers.CreateDistributionLog)
+
+				protectedDistributionLogRoutes.PUT("/:id", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mengedit distribusi bantuan",
+					"admin",
+				), controllers.UpdateDistributionLog)
+
+				protectedDistributionLogRoutes.DELETE("/:id", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin yang bisa menghapus distribusi bantuan",
+					"admin",
+				), controllers.DeleteDistributionLog)
+			}
 		}
+
 		evacuationRouteRoutes := api.Group("/evacuation_routes")
 		{
-			evacuationRouteRoutes.POST("/", controllers.CreateEvacuationRoute)
 			evacuationRouteRoutes.GET("/", controllers.GetAllEvacuationRoutes)
 			evacuationRouteRoutes.GET("/:id", controllers.GetEvacuationRouteByID)
-			evacuationRouteRoutes.PUT("/:id", controllers.UpdateEvacuationRoute)
-			evacuationRouteRoutes.DELETE("/:id", controllers.DeleteEvacuationRoute)
+
+			protectedEvacuationRouteRoutes := evacuationRouteRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedEvacuationRouteRoutes.POST("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mencatat jalur evakuasi",
+					"admin",
+				), controllers.CreateEvacuationRoute)
+
+				protectedEvacuationRouteRoutes.PUT("/:id", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa mengedit jalur evakuasi",
+					"admin",
+				), controllers.UpdateEvacuationRoute)
+
+				protectedEvacuationRouteRoutes.DELETE("/:id", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin yang bisa menghapus jalur evakuasi",
+					"admin",
+				), controllers.DeleteEvacuationRoute)
+			}
 		}
+
+
 		emergencyReportRoutes := api.Group("/emergency_reports")
 		{
-			emergencyReportRoutes.POST("/", controllers.CreateEmergencyReport)
-			emergencyReportRoutes.GET("/", controllers.GetAllEmergencyReports)
-			emergencyReportRoutes.GET("/:id", controllers.GetEmergencyReportByID)
-			emergencyReportRoutes.PUT("/:id", controllers.UpdateEmergencyReport)
-			emergencyReportRoutes.DELETE("/:id", controllers.DeleteEmergencyReport)
+			protectedEmergencyReportRoutes := emergencyReportRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedEmergencyReportRoutes.POST("/", controllers.CreateEmergencyReport)
+
+				protectedEmergencyReportRoutes.GET("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa melihat semua laporan darurat",
+					"admin",
+				), controllers.GetAllEmergencyReports)
+
+				protectedEmergencyReportRoutes.GET("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa melihat laporan darurat Anda sendiri",
+					"admin",
+				), controllers.GetEmergencyReportByID)
+
+				protectedEmergencyReportRoutes.PUT("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa mengedit laporan darurat Anda sendiri",
+					"admin",
+				), controllers.UpdateEmergencyReport)
+
+				protectedEmergencyReportRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa menghapus laporan darurat Anda sendiri",
+					"admin",
+				), controllers.DeleteEmergencyReport)
+			}
 		}
+
+
 		donationRoutes := api.Group("/donations")
 		{
-			donationRoutes.POST("/", controllers.CreateDonation)
-			donationRoutes.GET("/", controllers.GetAllDonations)
-			donationRoutes.GET("/:id", controllers.GetDonationByID)
-			donationRoutes.PUT("/:id", controllers.UpdateDonation)
-			donationRoutes.DELETE("/:id", controllers.DeleteDonation)
+			protectedDonationRoutes := donationRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedDonationRoutes.POST("/", controllers.CreateDonation)
+
+				protectedDonationRoutes.GET("/", middlewares.RequireRoles(
+					"Akses ditolak, hanya admin dan donatur yang bisa melihat semua donasi",
+					"admin", "donor",
+				), controllers.GetAllDonations)
+
+				protectedDonationRoutes.GET("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa melihat donasi Anda sendiri",
+					"admin",
+				), controllers.GetDonationByID)
+
+				protectedDonationRoutes.PUT("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa mengedit donasi Anda sendiri",
+					"admin",
+				), controllers.UpdateDonation)
+
+				protectedDonationRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa menghapus donasi Anda sendiri",
+					"admin",
+				), controllers.DeleteDonation)
+			}
 		}
+
 		volunteerRoutes := api.Group("/volunteers")
 		{
-			volunteerRoutes.POST("/", controllers.CreateVolunteer)
-			volunteerRoutes.GET("/", controllers.GetAllVolunteers)
-			volunteerRoutes.GET("/:id", controllers.GetVolunteerByID)
-			volunteerRoutes.PUT("/:id", controllers.UpdateVolunteer)
-			volunteerRoutes.DELETE("/:id", controllers.DeleteVolunteer)
+			protectedVolunteerRoutes := volunteerRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedVolunteerRoutes.POST("/", controllers.CreateVolunteer)
+
+				protectedVolunteerRoutes.GET("/", middlewares.RequireVolunteerOrRole(
+					"Akses ditolak, hanya admin dan relawan yang bisa melihat semua relawan",
+					"admin",
+				), controllers.GetAllVolunteers)
+
+				protectedVolunteerRoutes.GET("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa melihat informasi relawan Anda sendiri",
+					"admin",
+				), controllers.GetVolunteerByID)
+
+				protectedVolunteerRoutes.PUT("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa mengedit informasi relawan Anda sendiri",
+					"admin",
+				), controllers.UpdateVolunteer)
+
+				protectedVolunteerRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole(
+					"Anda hanya bisa menghapus status relawan Anda sendiri",
+					"admin",
+				), controllers.DeleteVolunteer)
+			}
 		}
 	}
 

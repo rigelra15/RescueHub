@@ -69,6 +69,14 @@ func IsEmailExists(db *sql.DB, email string) (bool, error) {
 	return exists, nil
 }
 	
+func IsUserVolunteer(db *sql.DB, userID int) (bool, error) {
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS (SELECT 1 FROM volunteers WHERE user_id = $1)", userID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
 
 func CreateUser(db *sql.DB, user structs.User) error {
 	emailExists, err := IsEmailExists(db, user.Email)
@@ -209,4 +217,46 @@ func CheckPasswordHash(password, hashedPassword string) bool {
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
+}
+
+func GetDonationsByUserID(db *sql.DB, userID int) ([]structs.Donation, error) {
+	var donations []structs.Donation
+	query := `SELECT id, donor_id, disaster_id, amount, item_name, status, created_at, updated_at 
+	          FROM donations WHERE donor_id = $1`
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return donations, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var donation structs.Donation
+		err := rows.Scan(&donation.ID, &donation.DonorID, &donation.DisasterID, &donation.Amount, &donation.ItemName, &donation.Status, &donation.CreatedAt, &donation.UpdatedAt)
+		if err != nil {
+			return donations, err
+		}
+		donations = append(donations, donation)
+	}
+	return donations, nil
+}
+
+func GetEmergencyReportsByUserID(db *sql.DB, userID int) ([]structs.EmergencyReport, error) {
+	var reports []structs.EmergencyReport
+	query := `SELECT id, user_id, disaster_id, description, location, created_at, updated_at 
+	          FROM emergency_reports WHERE user_id = $1`
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		return reports, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var report structs.EmergencyReport
+		err := rows.Scan(&report.ID, &report.UserID, &report.DisasterID, &report.Description, &report.Location, &report.CreatedAt, &report.UpdatedAt)
+		if err != nil {
+			return reports, err
+		}
+		reports = append(reports, report)
+	}
+	return reports, nil
 }
