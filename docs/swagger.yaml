@@ -83,6 +83,11 @@ definitions:
       user_id:
         type: integer
     type: object
+  structs.Enable2FA:
+    properties:
+      is_2fa:
+        type: boolean
+    type: object
   structs.EvacuationRouteInput:
     properties:
       destination:
@@ -165,6 +170,8 @@ definitions:
         type: string
       id:
         type: integer
+      is_2fa:
+        type: boolean
       name:
         type: string
       password:
@@ -185,6 +192,13 @@ definitions:
       password:
         type: string
       role:
+        type: string
+    type: object
+  structs.VerifyOTP:
+    properties:
+      email:
+        type: string
+      otp:
         type: string
     type: object
   structs.VolunteerInput:
@@ -1509,6 +1523,42 @@ paths:
       summary: Update user
       tags:
       - Users
+  /users/enable-2fa:
+    put:
+      consumes:
+      - application/json
+      description: Mengaktifkan atau menonaktifkan 2FA
+      parameters:
+      - description: User 2FA status
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Enable2FA'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Enable 2FA
+      tags:
+      - Users
   /users/info/{id}:
     put:
       consumes:
@@ -1582,6 +1632,40 @@ paths:
           schema:
             $ref: '#/definitions/structs.APIResponse'
       summary: Login user
+      tags:
+      - Auth
+  /users/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verifikasi OTP untuk mendapatkan token JWT
+      parameters:
+      - description: User OTP verification
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/structs.VerifyOTP'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Verify OTP
       tags:
       - Auth
   /volunteers:

@@ -5,6 +5,7 @@ import (
 	"RescueHub/middlewares"
 	"RescueHub/repository"
 	"RescueHub/structs"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -27,38 +28,129 @@ func Login(c *gin.Context) {
 	var loginRequest structs.Login
 
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Input tidak valid",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid"})
 		return
 	}
 
 	user, err := repository.GetUserByEmail(database.DbConnection, loginRequest.Email)
+	if err != nil || !repository.CheckPasswordHash(loginRequest.Password, user.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email atau password salah"})
+		return
+	}
+
+	if user.Role == "admin" || user.Is2FA {
+		fmt.Println("User ID yang digunakan untuk OTP:", user.ID)
+		otp := middlewares.GenerateOTP()
+		err = middlewares.SendOTPToEmail(user.Email, otp)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengirim OTP"})
+			return
+		}
+
+		err = repository.SaveOTP(database.DbConnection, user.ID, otp)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menyimpan OTP"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "OTP telah dikirim ke email Anda"})
+		return
+	}
+
+	token, err := middlewares.GenerateJWT(user.Email, user.Role)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Email atau password salah",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat token"})
 		return
 	}
 
-	if !repository.CheckPasswordHash(loginRequest.Password, user.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Email atau password salah",
-		})
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+// VerifyOTP godoc
+// @Summary Verify OTP
+// @Description Verifikasi OTP untuk mendapatkan token JWT
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body structs.VerifyOTP true "User OTP verification"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 401 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Router /users/verify-otp [post]
+func VerifyOTP(c *gin.Context) {
+	var otpRequest struct {
+		Email string `json:"email"`
+		OTP   string `json:"otp"`
+	}
+
+	if err := c.ShouldBindJSON(&otpRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid"})
 		return
 	}
 
-	token, err := middlewares.GenerateJWT(user.Email)
+	user, err := repository.GetUserByEmail(database.DbConnection, otpRequest.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Gagal membuat token",
-		})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email tidak ditemukan"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"token": token,
-	})
+	isValid, err := repository.ValidateOTP(database.DbConnection, user.ID, otpRequest.OTP)
+	if err != nil || !isValid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "OTP salah atau telah kedaluwarsa"})
+		return
+	}
+
+	token, err := middlewares.GenerateJWT(user.Email, user.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+// Enable2FA godoc
+// @Summary Enable 2FA
+// @Description Mengaktifkan atau menonaktifkan 2FA
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body structs.Enable2FA true "User 2FA status"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 401 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /users/enable-2fa [put]
+func Enable2FA(c *gin.Context) {
+	var request struct {
+		Is2FAEnabled bool `json:"is_2fa"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid"})
+		return
+	}
+
+	email, exists := c.Get("email")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Tidak dapat mengidentifikasi pengguna"})
+		return
+	}
+
+	err := repository.Enable2FA(database.DbConnection, email.(string), request.Is2FAEnabled)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengubah status 2FA"})
+		return
+	}
+
+	status := "dinonaktifkan"
+	if request.Is2FAEnabled {
+		status = "diaktifkan"
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "2FA berhasil " + status})
 }
 
 // GetAllUsers godoc

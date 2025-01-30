@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"RescueHub/database"
 	"RescueHub/controllers"
-	// "RescueHub/middlewares"
+	"RescueHub/middlewares"
 	"github.com/swaggo/gin-swagger"
 	"github.com/swaggo/files"
 	"github.com/gin-contrib/cors"
@@ -41,6 +41,10 @@ func main() {
 	err = godotenv.Load("config/.env")
 	if err != nil {
 		panic("Error loading .env file")
+	}
+
+	if os.Getenv("JWT_SECRET") == "" {
+		panic("JWT_SECRET tidak ditemukan di environment variables")
 	}
 
 	// psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -90,19 +94,17 @@ func main() {
 		{
 			userRoutes.POST("/", controllers.CreateUser)
 			userRoutes.POST("/login", controllers.Login)
-			userRoutes.GET("/", controllers.GetAllUsers)
-			userRoutes.GET("/:id", controllers.GetUserByID)
-			userRoutes.PUT("/:id", controllers.UpdateUser)
-			userRoutes.PUT("/info/:id", controllers.UpdateUserInfoWithoutEmail)
-			userRoutes.DELETE("/:id", controllers.DeleteUser)
-
-			// protectedUserRoutes := userRoutes.Group("/", middlewares.JWTAuthMiddleware())
-			// {
-			// 		protectedUserRoutes.GET("/", controllers.GetAllUsers)
-			// 		protectedUserRoutes.GET("/:id", controllers.GetUserByID)
-			// 		protectedUserRoutes.PUT("/:id", controllers.UpdateUser)
-			// 		protectedUserRoutes.DELETE("/:id", controllers.DeleteUser)
-			// }
+			userRoutes.POST("/verify-otp", controllers.VerifyOTP)
+			
+			protectedUserRoutes := userRoutes.Group("/", middlewares.JWTAuthMiddleware())
+			{
+				protectedUserRoutes.PUT("/enable-2fa", middlewares.RequireSelfFor2FA(), controllers.Enable2FA)
+				protectedUserRoutes.PUT("/info/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa mengedit info akun Anda sendiri", "admin"), controllers.UpdateUserInfoWithoutEmail)
+				protectedUserRoutes.GET("/", middlewares.RequireRoles("Akses ditolak, hanya admin dan donor yang dapat melihat daftar pengguna","admin"), controllers.GetAllUsers)
+				protectedUserRoutes.GET("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa melihat info akun Anda sendiri", "admin"), controllers.GetUserByID)
+				protectedUserRoutes.PUT("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa mengedit akun Anda sendiri", "admin"), controllers.UpdateUser)
+				protectedUserRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa menghapus akun Anda sendiri", "admin"), controllers.DeleteUser)
+			}
 		}
 
 		disasterRoutes := api.Group("/disasters")

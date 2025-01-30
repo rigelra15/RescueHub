@@ -4,8 +4,50 @@ import (
 	"RescueHub/structs"
 	"database/sql"
 	"errors"
+	"time"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func SaveOTP(db *sql.DB, userID int, otp string) error {
+	sqlQuery := `UPDATE users SET otp_code = $1, otp_expiry = $2 WHERE id = $3`
+	res, err := db.Exec(sqlQuery, otp, time.Now().Add(5*time.Minute), userID)
+	if err != nil {
+			fmt.Println("Error SaveOTP:", err)
+			return err
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected == 0 {
+			return errors.New("user ID tidak ditemukan")
+	}
+
+	return nil
+}
+
+func ValidateOTP(db *sql.DB, userID int, otp string) (bool, error) {
+	var storedOTP string
+	var expiry time.Time
+
+	err := db.QueryRow("SELECT otp_code, otp_expiry FROM users WHERE id = $1", userID).Scan(&storedOTP, &expiry)
+	if err != nil {
+		return false, err
+	}
+
+	if storedOTP != otp || time.Now().After(expiry) {
+		return false, errors.New("OTP salah atau telah kedaluwarsa")
+	}
+
+	_, _ = db.Exec("UPDATE users SET otp_code = NULL, otp_expiry = NULL WHERE id = $1", userID)
+
+	return true, nil
+}
+
+func Enable2FA(db *sql.DB, email string, isEnabled bool) error {
+	sqlQuery := `UPDATE users SET is_2fa = $1 WHERE email = $2`
+	_, err := db.Exec(sqlQuery, isEnabled, email)
+	return err
+}
 
 func isValidUserRole(role string) bool {
 	validRoles := []string{"admin", "donor", "user"}

@@ -11,6 +11,7 @@ type User struct {
 	Password  string `json:"password"`
 	Role      string `json:"role"`
 	Contact   string `json:"contact"`
+	Is2FA		  bool   `json:"is_2fa"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -121,6 +122,15 @@ type Volunteer struct {
 type Login struct {
 	Email		 string `json:"email"`
 	Password string `json:"password"`
+}
+
+type VerifyOTP struct {
+	Email string `json:"email"`
+	OTP   string `json:"otp"`
+}
+
+type Enable2FA struct {
+	Is2FA bool `json:"is_2fa"`
 }
 
 type UserInput struct {

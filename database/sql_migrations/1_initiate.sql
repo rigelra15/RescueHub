@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL,
     role user_role NOT NULL,
     contact VARCHAR(20),
+    is_2fa BOOLEAN DEFAULT FALSE,
+    otp_code VARCHAR(6),
+    otp_expiry TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

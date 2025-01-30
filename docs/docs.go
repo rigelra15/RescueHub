@@ -1841,6 +1841,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/enable-2fa": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengaktifkan atau menonaktifkan 2FA",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Enable 2FA",
+                "parameters": [
+                    {
+                        "description": "User 2FA status",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.Enable2FA"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/info/{id}": {
             "put": {
                 "security": [
@@ -1926,6 +1983,58 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/structs.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/verify-otp": {
+            "post": {
+                "description": "Verifikasi OTP untuk mendapatkan token JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Verify OTP",
+                "parameters": [
+                    {
+                        "description": "User OTP verification",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.VerifyOTP"
                         }
                     }
                 ],
@@ -2448,6 +2557,14 @@ const docTemplate = `{
                 }
             }
         },
+        "structs.Enable2FA": {
+            "type": "object",
+            "properties": {
+                "is_2fa": {
+                    "type": "boolean"
+                }
+            }
+        },
         "structs.EvacuationRouteInput": {
             "type": "object",
             "properties": {
@@ -2574,6 +2691,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "is_2fa": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -2604,6 +2724,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "structs.VerifyOTP": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "otp": {
                     "type": "string"
                 }
             }
