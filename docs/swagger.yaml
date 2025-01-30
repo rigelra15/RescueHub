@@ -1,0 +1,1731 @@
+basePath: /api
+definitions:
+  structs.APIResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      result: {}
+    type: object
+  structs.Disaster:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      reported_by:
+        type: integer
+      status:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  structs.DisasterInput:
+    properties:
+      description:
+        type: string
+      location:
+        type: string
+      reported_by:
+        type: integer
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  structs.DistributionLogInput:
+    properties:
+      destination:
+        type: string
+      distance:
+        type: number
+      logistic_id:
+        type: integer
+      origin:
+        type: string
+      quantity_sent:
+        type: integer
+      recipient_name:
+        type: string
+      sender_name:
+        type: string
+      sent_at:
+        type: string
+    type: object
+  structs.DonationInput:
+    properties:
+      amount:
+        type: number
+      disaster_id:
+        type: integer
+      item_name:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  structs.EmergencyReportInput:
+    properties:
+      description:
+        type: string
+      disaster_id:
+        type: integer
+      location:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  structs.EvacuationRouteInput:
+    properties:
+      destination:
+        type: string
+      disaster_id:
+        type: integer
+      distance:
+        type: number
+      origin:
+        type: string
+      route:
+        type: string
+      status:
+        type: string
+    type: object
+  structs.Login:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  structs.LogisticInput:
+    properties:
+      disaster_id:
+        type: integer
+      quantity:
+        type: integer
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  structs.RefugeeInput:
+    properties:
+      age:
+        type: integer
+      condition:
+        type: string
+      disaster_id:
+        type: integer
+      name:
+        type: string
+      needs:
+        type: string
+      shelter_id:
+        type: integer
+    type: object
+  structs.ShelterInput:
+    properties:
+      capacity_remaining:
+        type: integer
+      capacity_total:
+        type: integer
+      disaster_id:
+        type: integer
+      emergency_needs:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+    type: object
+  structs.UpdateUserInfoWithoutEmail:
+    properties:
+      contact:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  structs.User:
+    properties:
+      contact:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  structs.UserInput:
+    properties:
+      contact:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+  structs.VolunteerInput:
+    properties:
+      disaster_id:
+        type: integer
+      location:
+        type: string
+      skill:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Rigel Ramadhani W.
+    url: https://github.com/rigelra15
+  description: "API\tuntuk mengelola pelaporan bencana, manajemen pengungsi, koordinasi
+    relawan, dan distribusi logistik. Platform ini juga menyediakan rute evakuasi
+    yang aman serta laporan kebutuhan darurat dari daerah terdampak bencana.\nAuthor:
+    Rigel Ramadhani W. - Sanbercode Bootcamp Golang Batch 63 - FINAL PROJECT"
+  title: Rescue Hub API
+  version: "1.0"
+paths:
+  /disasters:
+    get:
+      description: Mendapatkan semua laporan bencana
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all disasters
+      tags:
+      - Disaster
+    post:
+      consumes:
+      - application/json
+      description: Membuat laporan bencana baru
+      parameters:
+      - description: Disaster object
+        in: body
+        name: disaster
+        required: true
+        schema:
+          $ref: '#/definitions/structs.DisasterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create disaster
+      tags:
+      - Disaster
+  /disasters/{id}:
+    delete:
+      description: Menghapus laporan bencana
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete disaster
+      tags:
+      - Disaster
+    get:
+      description: Mendapatkan laporan bencana berdasarkan ID
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Disaster'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get disaster by ID
+      tags:
+      - Disaster
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate laporan bencana
+      parameters:
+      - description: Disaster ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Disaster object
+        in: body
+        name: disaster
+        required: true
+        schema:
+          $ref: '#/definitions/structs.DisasterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update disaster
+      tags:
+      - Disaster
+  /distribution_logs:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar distribusi bantuan
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all distribution logs
+      tags:
+      - DistributionLog
+    post:
+      consumes:
+      - application/json
+      description: Mencatat distribusi bantuan
+      parameters:
+      - description: Data distribusi bantuan
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.DistributionLogInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create a distribution log
+      tags:
+      - DistributionLog
+  /distribution_logs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus distribusi bantuan
+      parameters:
+      - description: Distribution Log ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete a distribution log
+      tags:
+      - DistributionLog
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan distribusi bantuan berdasarkan ID
+      parameters:
+      - description: Distribution Log ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get distribution log by ID
+      tags:
+      - DistributionLog
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui distribusi bantuan
+      parameters:
+      - description: Distribution Log ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data distribusi bantuan
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.DistributionLogInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update a distribution log
+      tags:
+      - DistributionLog
+  /donations:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar donasi
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all donations
+      tags:
+      - Donation
+    post:
+      consumes:
+      - application/json
+      description: Mencatat donasi
+      parameters:
+      - description: Data donasi
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.DonationInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create a donation
+      tags:
+      - Donation
+  /donations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus donasi
+      parameters:
+      - description: Donation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete a donation
+      tags:
+      - Donation
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan donasi berdasarkan ID
+      parameters:
+      - description: Donation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get a donation by ID
+      tags:
+      - Donation
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui donasi
+      parameters:
+      - description: Donation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data donasi
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.DonationInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update a donation
+      tags:
+      - Donation
+  /emergency_reports:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar laporan darurat
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all emergency reports
+      tags:
+      - EmergencyReport
+    post:
+      consumes:
+      - application/json
+      description: Mencatat laporan darurat
+      parameters:
+      - description: Input data laporan darurat
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.EmergencyReportInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create an emergency report
+      tags:
+      - EmergencyReport
+  /emergency_reports/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus laporan darurat
+      parameters:
+      - description: ID laporan darurat
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete an emergency report
+      tags:
+      - EmergencyReport
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan laporan darurat berdasarkan ID
+      parameters:
+      - description: ID laporan darurat
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get an emergency report by ID
+      tags:
+      - EmergencyReport
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui laporan darurat
+      parameters:
+      - description: ID laporan darurat
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Input data laporan darurat
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.EmergencyReportInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update an emergency report
+      tags:
+      - EmergencyReport
+  /evacuation_routes:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar jalur evakuasi
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all evacuation routes
+      tags:
+      - EvacuationRoute
+    post:
+      consumes:
+      - application/json
+      description: Mencatat jalur evakuasi
+      parameters:
+      - description: Input data jalur evakuasi
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.EvacuationRouteInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create an evacuation route
+      tags:
+      - EvacuationRoute
+  /evacuation_routes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus jalur evakuasi
+      parameters:
+      - description: ID jalur evakuasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete an evacuation route
+      tags:
+      - EvacuationRoute
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan jalur evakuasi berdasarkan ID
+      parameters:
+      - description: ID jalur evakuasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get an evacuation route by ID
+      tags:
+      - EvacuationRoute
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui jalur evakuasi
+      parameters:
+      - description: ID jalur evakuasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Input data jalur evakuasi
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.EvacuationRouteInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update an evacuation route
+      tags:
+      - EvacuationRoute
+  /logistics:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar bantuan logistik
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all logistics
+      tags:
+      - Logistic
+    post:
+      consumes:
+      - application/json
+      description: Mencatat bantuan logistik
+      parameters:
+      - description: Data bantuan logistik
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.LogisticInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create a logistic
+      tags:
+      - Logistic
+  /logistics/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus bantuan logistik
+      parameters:
+      - description: Logistic ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete logistic
+      tags:
+      - Logistic
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan bantuan logistik berdasarkan ID
+      parameters:
+      - description: Logistic ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get logistic by ID
+      tags:
+      - Logistic
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui bantuan logistik
+      parameters:
+      - description: Logistic ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data bantuan logistik
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.LogisticInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update logistic
+      tags:
+      - Logistic
+  /refugees:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar pengungsi
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all refugees
+      tags:
+      - Refugee
+    post:
+      consumes:
+      - application/json
+      description: Membuat data pengungsi baru
+      parameters:
+      - description: Data pengungsi
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.RefugeeInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create a refugee
+      tags:
+      - Refugee
+  /refugees/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus data pengungsi
+      parameters:
+      - description: Refugee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete a refugee
+      tags:
+      - Refugee
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan data pengungsi berdasarkan ID
+      parameters:
+      - description: Refugee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get refugee by ID
+      tags:
+      - Refugee
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data pengungsi
+      parameters:
+      - description: Refugee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data pengungsi
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.RefugeeInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update a refugee
+      tags:
+      - Refugee
+  /shelters:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar shelter
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all shelters
+      tags:
+      - Shelter
+    post:
+      consumes:
+      - application/json
+      description: Membuat shelter baru
+      parameters:
+      - description: Data shelter
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.ShelterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create a shelter
+      tags:
+      - Shelter
+  /shelters/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus shelter
+      parameters:
+      - description: ID Shelter
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete a shelter
+      tags:
+      - Shelter
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan shelter berdasarkan ID
+      parameters:
+      - description: ID Shelter
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get a shelter by ID
+      tags:
+      - Shelter
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui shelter
+      parameters:
+      - description: ID Shelter
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data shelter
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.ShelterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update a shelter
+      tags:
+      - Shelter
+  /users:
+    get:
+      description: Mendapatkan semua user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Membuat user baru
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/structs.UserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Create new user
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      description: Menghapus user berdasarkan ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - Users
+    get:
+      description: Mendapatkan user berdasarkan ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Mengubah data user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/structs.UserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - Users
+  /users/info/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Mengubah data user tanpa email
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/structs.UpdateUserInfoWithoutEmail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user without email
+      tags:
+      - Users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentikasi user untuk mendapatkan token JWT
+      parameters:
+      - description: User login credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/structs.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Login user
+      tags:
+      - Auth
+  /volunteers:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar relawan
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get all volunteers
+      tags:
+      - Volunteer
+    post:
+      consumes:
+      - application/json
+      description: Mencatat relawan
+      parameters:
+      - description: Data relawan
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.VolunteerInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Create a volunteer
+      tags:
+      - Volunteer
+  /volunteers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus relawan
+      parameters:
+      - description: ID relawan
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Delete a volunteer
+      tags:
+      - Volunteer
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan relawan berdasarkan ID
+      parameters:
+      - description: ID relawan
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Get a volunteer by ID
+      tags:
+      - Volunteer
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui relawan
+      parameters:
+      - description: ID relawan
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data relawan
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/structs.VolunteerInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      summary: Update a volunteer
+      tags:
+      - Volunteer
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
