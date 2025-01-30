@@ -1,2 +1,2 @@
 # RescueHub
-A RESTful API built with Golang to streamline disaster reporting, refugee management, volunteer coordination, and logistics distribution. This platform also provides safe evacuation routes and urgent needs reporting from disaster-affected areas.
+Sebuah RESTful API yang dibangun dengan Golang untuk mempermudah pelaporan bencana, manajemen pengungsi, koordinasi relawan, dan distribusi logistik. Platform ini juga menyediakan rute evakuasi yang aman serta laporan kebutuhan darurat dari daerah terdampak bencana.
