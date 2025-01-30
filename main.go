@@ -30,7 +30,7 @@ var (
 // @contact.name Rigel Ramadhani W.
 // @contact.url https://github.com/rigelra15
 
-// @host localhost:8080
+// @host rescuehub-production.up.railway.app
 // @BasePath /api
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -47,21 +47,21 @@ func main() {
 		panic("JWT_SECRET tidak ditemukan di environment variables")
 	}
 
-	// psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-	// 	os.Getenv("PGHOST"),
-	// 	os.Getenv("PGPORT"),
-	// 	os.Getenv("PGUSER"),
-	// 	os.Getenv("PGPASSWORD"),
-	// 	os.Getenv("PGDATABASE"),
-	// )
-
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		"localhost",
-		"5432",
-		"postgres",
-		"postgres",
-		"rescue_hub",
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+		os.Getenv("PGDATABASE"),
 	)
+
+	// psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	// 	"localhost",
+	// 	"5432",
+	// 	"postgres",
+	// 	"postgres",
+	// 	"rescue_hub",
+	// )
 
 	DB, err = sql.Open("postgres", psqlInfo)
 	if err != nil {

@@ -254,11 +254,6 @@ const docTemplate = `{
         },
         "/disasters/{id}/emergency-reports": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Menampilkan daftar laporan darurat untuk bencana tertentu",
                 "produces": [
                     "application/json"
@@ -306,11 +301,6 @@ const docTemplate = `{
         },
         "/disasters/{id}/evacuation-routes": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Menampilkan daftar jalur evakuasi untuk bencana tertentu",
                 "produces": [
                     "application/json"
@@ -1804,11 +1794,6 @@ const docTemplate = `{
         },
         "/refugees/{id}/distribution-logs": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Menampilkan daftar distribusi bantuan yang diterima oleh pengungsi tertentu",
                 "produces": [
                     "application/json"
@@ -2066,11 +2051,6 @@ const docTemplate = `{
         },
         "/shelters/{id}/logistics": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Menampilkan daftar bantuan logistik yang tersedia di shelter tertentu",
                 "produces": [
                     "application/json"
@@ -2118,11 +2098,6 @@ const docTemplate = `{
         },
         "/shelters/{id}/refugees": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Menampilkan daftar pengungsi dalam shelter tertentu",
                 "produces": [
                     "application/json"
@@ -3286,7 +3261,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "rescuehub-production.up.railway.app",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Rescue Hub API",

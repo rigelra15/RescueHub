@@ -214,7 +214,7 @@ definitions:
       user_id:
         type: integer
     type: object
-host: localhost:8080
+host: rescuehub-production.up.railway.app
 info:
   contact:
     name: Rigel Ramadhani W.
@@ -405,8 +405,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
-      security:
-      - BearerAuth: []
       summary: Get emergency reports by disaster ID
       tags:
       - Disaster
@@ -438,8 +436,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
-      security:
-      - BearerAuth: []
       summary: Get evacuation routes by disaster ID
       tags:
       - Disaster
@@ -1425,8 +1421,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
-      security:
-      - BearerAuth: []
       summary: Get distribution logs by refugee ID
       tags:
       - Refugee
@@ -1597,8 +1591,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
-      security:
-      - BearerAuth: []
       summary: Get logistics by shelter ID
       tags:
       - Shelter
@@ -1630,8 +1622,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
-      security:
-      - BearerAuth: []
       summary: Get refugees by shelter ID
       tags:
       - Shelter
