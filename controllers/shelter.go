@@ -62,6 +62,7 @@ func CreateShelter(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /shelters [get]
 func GetAllShelters(c *gin.Context) {
 	shelters, err := repository.GetAllShelters(database.DbConnection)
@@ -94,6 +95,7 @@ func GetAllShelters(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /shelters/{id} [get]
 func GetShelterByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -150,6 +152,13 @@ func UpdateShelter(c *gin.Context) {
 
 	err = repository.UpdateShelter(database.DbConnection, input)
 	if err != nil {
+		if err.Error() == "shelter not found" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Shelter tidak ditemukan",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal mengupdate shelter",
 		})
@@ -205,6 +214,7 @@ func DeleteShelter(c *gin.Context) {
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /shelters/{id}/refugees [get]
 func GetRefugeesByShelterID(c *gin.Context) {
 	shelterID, err := strconv.Atoi(c.Param("id"))
@@ -237,6 +247,7 @@ func GetRefugeesByShelterID(c *gin.Context) {
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /shelters/{id}/logistics [get]
 func GetLogisticsByShelterID(c *gin.Context) {
 	shelterID, err := strconv.Atoi(c.Param("id"))

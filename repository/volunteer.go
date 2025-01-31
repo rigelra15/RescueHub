@@ -4,6 +4,8 @@ import (
 	"RescueHub/structs"
 	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 func CreateVolunteer(db *sql.DB, volunteer *structs.Volunteer) error {
@@ -64,15 +66,62 @@ func GetVolunteerByID(db *sql.DB, id int) (structs.Volunteer, error) {
 	return volunteer, nil
 }
 
+func isVolunteerExists(db *sql.DB, id int) bool {
+	query := `SELECT id FROM volunteers WHERE id = $1`
+	err := db.QueryRow(query, id).Scan(&id)
+	return err == nil
+}
+
 func UpdateVolunteer(db *sql.DB, volunteer structs.Volunteer) error {
 	if !isValidVolunteerStatus(volunteer.Status) {
-			return errors.New("invalid volunteer status")
+		return errors.New("invalid volunteer status")
 	}
 
-	sqlQuery := `UPDATE volunteers SET user_id=$1, disaster_id=$2, skill=$3, location=$4, status=$5, updated_at=NOW() WHERE id=$6`
-	_, err := db.Exec(sqlQuery, volunteer.UserID, volunteer.DisasterID, volunteer.Skill, volunteer.Location, volunteer.Status, volunteer.ID)
+	if !isVolunteerExists(db, volunteer.ID) {
+		return errors.New("volunteer not found")
+	}
+
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if volunteer.UserID != nil {
+		updateFields = append(updateFields, "user_id = $"+strconv.Itoa(counter))
+		values = append(values, volunteer.UserID)
+		counter++
+	}
+	if volunteer.DisasterID != nil {
+		updateFields = append(updateFields, "disaster_id = $"+strconv.Itoa(counter))
+		values = append(values, volunteer.DisasterID)
+		counter++
+	}
+	if volunteer.Skill != "" {
+		updateFields = append(updateFields, "skill = $"+strconv.Itoa(counter))
+		values = append(values, volunteer.Skill)
+		counter++
+	}
+	if volunteer.Location != "" {
+		updateFields = append(updateFields, "location = $"+strconv.Itoa(counter))
+		values = append(values, volunteer.Location)
+		counter++
+	}
+	if volunteer.Status != "" {
+		updateFields = append(updateFields, "status = $"+strconv.Itoa(counter))
+		values = append(values, volunteer.Status)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE volunteers SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, volunteer.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
-			return err
+		return err
 	}
 	return nil
 }

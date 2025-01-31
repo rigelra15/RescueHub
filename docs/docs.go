@@ -20,6 +20,11 @@ const docTemplate = `{
     "paths": {
         "/disasters": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan semua laporan bencana",
                 "produces": [
                     "application/json"
@@ -104,6 +109,11 @@ const docTemplate = `{
         },
         "/disasters/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan laporan bencana berdasarkan ID",
                 "produces": [
                     "application/json"
@@ -260,6 +270,11 @@ const docTemplate = `{
         },
         "/disasters/{id}/emergency-reports": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Menampilkan daftar laporan darurat untuk bencana tertentu",
                 "produces": [
                     "application/json"
@@ -307,6 +322,11 @@ const docTemplate = `{
         },
         "/disasters/{id}/evacuation-routes": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Menampilkan daftar jalur evakuasi untuk bencana tertentu",
                 "produces": [
                     "application/json"
@@ -406,6 +426,11 @@ const docTemplate = `{
         },
         "/disasters/{id}/refugees": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Menampilkan daftar pengungsi untuk bencana tertentu",
                 "produces": [
                     "application/json"
@@ -453,6 +478,11 @@ const docTemplate = `{
         },
         "/disasters/{id}/shelters": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan shelter berdasarkan ID bencana",
                 "produces": [
                     "application/json"
@@ -546,6 +576,11 @@ const docTemplate = `{
         },
         "/distribution_logs": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan daftar distribusi bantuan",
                 "consumes": [
                     "application/json"
@@ -630,6 +665,11 @@ const docTemplate = `{
         },
         "/distribution_logs/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan distribusi bantuan berdasarkan ID",
                 "consumes": [
                     "application/json"
@@ -815,6 +855,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mencatat donasi",
                 "consumes": [
                     "application/json"
@@ -1051,6 +1096,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mencatat laporan darurat",
                 "consumes": [
                     "application/json"
@@ -1249,6 +1299,11 @@ const docTemplate = `{
         },
         "/evacuation_routes": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan daftar jalur evakuasi",
                 "consumes": [
                     "application/json"
@@ -1333,6 +1388,11 @@ const docTemplate = `{
         },
         "/evacuation_routes/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan jalur evakuasi berdasarkan ID",
                 "consumes": [
                     "application/json"
@@ -1480,6 +1540,11 @@ const docTemplate = `{
         },
         "/logistics": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan daftar bantuan logistik",
                 "consumes": [
                     "application/json"
@@ -1564,6 +1629,11 @@ const docTemplate = `{
         },
         "/logistics/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan bantuan logistik berdasarkan ID",
                 "consumes": [
                     "application/json"
@@ -1711,6 +1781,11 @@ const docTemplate = `{
         },
         "/refugees": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan daftar pengungsi",
                 "consumes": [
                     "application/json"
@@ -1795,6 +1870,11 @@ const docTemplate = `{
         },
         "/refugees/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan data pengungsi berdasarkan ID",
                 "consumes": [
                     "application/json"
@@ -1940,55 +2020,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/refugees/{id}/distribution-logs": {
-            "get": {
-                "description": "Menampilkan daftar distribusi bantuan yang diterima oleh pengungsi tertentu",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Refugee"
-                ],
-                "summary": "Get distribution logs by refugee ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Refugee ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/shelters": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan daftar shelter",
                 "consumes": [
                     "application/json"
@@ -2067,6 +2105,11 @@ const docTemplate = `{
         },
         "/shelters/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mendapatkan shelter berdasarkan ID",
                 "consumes": [
                     "application/json"
@@ -2214,6 +2257,11 @@ const docTemplate = `{
         },
         "/shelters/{id}/logistics": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Menampilkan daftar bantuan logistik yang tersedia di shelter tertentu",
                 "produces": [
                     "application/json"
@@ -2261,6 +2309,11 @@ const docTemplate = `{
         },
         "/shelters/{id}/refugees": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Menampilkan daftar pengungsi dalam shelter tertentu",
                 "produces": [
                     "application/json"
@@ -2697,70 +2750,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{id}/change-role": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Admin dapat mengubah role siapa saja, sedangkan user hanya bisa mengubah role sendiri ke donor atau user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Mengubah role pengguna",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "List role: admin, donor, user",
-                        "name": "role",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/structs.ChangeUserRole"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/structs.APIResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/users/{id}/donations": {
             "get": {
                 "security": [
@@ -2963,6 +2952,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mencatat relawan",
                 "consumes": [
                     "application/json"
@@ -3171,14 +3165,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "result": {}
-            }
-        },
-        "structs.ChangeUserRole": {
-            "type": "object",
-            "properties": {
-                "role": {
-                    "type": "string"
-                }
             }
         },
         "structs.Disaster": {

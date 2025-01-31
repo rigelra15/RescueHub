@@ -167,6 +167,17 @@ func Enable2FA(c *gin.Context) {
 // @Failure 500 {object} structs.APIResponse
 // @Security BearerAuth
 // @Router /users/{id}/change-role [put]
+
+func isValidUserRole(role string) bool {
+	validRoles := []string{"admin", "donor", "user"}
+	for _, valid := range validRoles {
+		if role == valid {
+			return true
+		}
+	}
+	return false
+}
+
 func ChangeUserRole(c *gin.Context) {
 	var input struct {
 		Role string `json:"role"`
@@ -183,12 +194,8 @@ func ChangeUserRole(c *gin.Context) {
 		return
 	}
 
-	validRoles := map[string]bool{
-		"admin": true, "donor": true, "user": true,
-	}
-
-	if !validRoles[input.Role] {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Role tidak valid"})
+	if !isValidUserRole(input.Role) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Role tidak valid, hanya bisa 'admin', 'donor', atau 'user'"})
 		return
 	}
 
@@ -214,10 +221,7 @@ func ChangeUserRole(c *gin.Context) {
 		return
 	}
 
-	is2FA := false
-	if input.Role == "admin" {
-		is2FA = true
-	}
+	is2FA := input.Role == "admin"
 
 	err = repository.UpdateUserRole(database.DbConnection, id, input.Role, is2FA)
 	if err != nil {
@@ -227,6 +231,7 @@ func ChangeUserRole(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Role pengguna berhasil diperbarui"})
 }
+
 
 // GetAllUsers godoc
 // @Summary Get all users

@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"database/sql"
 	"RescueHub/structs"
+	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 func isValidEvacuationStatus(status string) bool {
@@ -22,7 +24,7 @@ func CreateEvacuationRoute(db *sql.DB, route *structs.EvacuationRoute) error {
 	}
 
 	sqlQuery := `INSERT INTO evacuation_routes (disaster_id, origin, destination, distance, route, status, created_at, updated_at)
-	             VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id, created_at, updated_at`
+							VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	err := db.QueryRow(sqlQuery, route.DisasterID, route.Origin, route.Destination, route.Distance, route.Route, route.Status).
 		Scan(&route.ID, &route.CreatedAt, &route.UpdatedAt)
 
@@ -68,18 +70,72 @@ func GetEvacuationRouteByID(db *sql.DB, id int) (structs.EvacuationRoute, error)
 	return route, nil
 }
 
+func isEvacuationRouteExists(db *sql.DB, id int) bool {
+	query := `SELECT EXISTS(SELECT 1 FROM evacuation_routes WHERE id = $1)`
+	var exists bool
+	db.QueryRow(query, id).Scan(&exists)
+	return exists
+}
+
 func UpdateEvacuationRoute(db *sql.DB, route structs.EvacuationRoute) error {
-	if !isValidEvacuationStatus(route.Status) {
+	if !isEvacuationRouteExists(db, route.ID) {
+		return errors.New("evacuation route not found")
+	}
+
+	if route.Status != "" && !isValidEvacuationStatus(route.Status) {
 		return errors.New("invalid evacuation route status")
 	}
 
-	sqlQuery := `UPDATE evacuation_routes SET disaster_id=$1, origin=$2, destination=$3, distance=$4, route=$5, status=$6, updated_at=NOW() WHERE id=$7`
-	_, err := db.Exec(sqlQuery, route.DisasterID, route.Origin, route.Destination, route.Distance, route.Route, route.Status, route.ID)
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if route.DisasterID != nil {
+		updateFields = append(updateFields, "disaster_id = $"+strconv.Itoa(counter))
+		values = append(values, route.DisasterID)
+		counter++
+	}
+	if route.Origin != "" {
+		updateFields = append(updateFields, "origin = $"+strconv.Itoa(counter))
+		values = append(values, route.Origin)
+		counter++
+	}
+	if route.Destination != "" {
+		updateFields = append(updateFields, "destination = $"+strconv.Itoa(counter))
+		values = append(values, route.Destination)
+		counter++
+	}
+	if route.Distance != 0 {
+		updateFields = append(updateFields, "distance = $"+strconv.Itoa(counter))
+		values = append(values, route.Distance)
+		counter++
+	}
+	if route.Route != "" {
+		updateFields = append(updateFields, "route = $"+strconv.Itoa(counter))
+		values = append(values, route.Route)
+		counter++
+	}
+	if route.Status != "" {
+		updateFields = append(updateFields, "status = $"+strconv.Itoa(counter))
+		values = append(values, route.Status)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE evacuation_routes SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, route.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
 
 func DeleteEvacuationRoute(db *sql.DB, id int) error {
 	sqlQuery := `DELETE FROM evacuation_routes WHERE id=$1`

@@ -4,6 +4,7 @@ import (
 	"RescueHub/database"
 	"RescueHub/repository"
 	"RescueHub/structs"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -42,6 +43,8 @@ func CreateEvacuationRoute(c *gin.Context) {
 
 	err := repository.CreateEvacuationRoute(database.DbConnection, evacuationRoute)
 	if err != nil {
+		fmt.Println("Error Query:", err)
+
 		if err.Error() == "invalid evacuation route status" {
 			c.JSON(http.StatusBadRequest, gin.H{
 					"error": "Status jalur evakuasi tidak valid, hanya bisa 'safe', 'risky', atau 'blocked'",
@@ -70,6 +73,7 @@ func CreateEvacuationRoute(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /evacuation_routes [get]
 func GetAllEvacuationRoutes(c *gin.Context) {
 	routes, err := repository.GetAllEvacuationRoutes(database.DbConnection)
@@ -102,6 +106,7 @@ func GetAllEvacuationRoutes(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /evacuation_routes/{id} [get]
 func GetEvacuationRouteByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -167,6 +172,13 @@ func UpdateEvacuationRoute(c *gin.Context) {
 
 	err = repository.UpdateEvacuationRoute(database.DbConnection, evacuationRoute)
 	if err != nil {
+		if err.Error() == "evacuation route not found" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Jalur evakuasi tidak ditemukan",
+			})
+			return
+		}
+
 		if err.Error() == "invalid evacuation route status" {
 			c.JSON(http.StatusBadRequest, gin.H{
 					"error": "Status jalur evakuasi tidak valid, hanya bisa 'safe', 'risky', atau 'blocked'",

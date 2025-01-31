@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"database/sql"
 	"RescueHub/structs"
+	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 
@@ -57,16 +59,66 @@ func GetRefugeeByID(db *sql.DB, id int) (structs.Refugee, error) {
 	return refugee, nil
 }
 
+func isRefugeeExists(db *sql.DB, id int) bool {
+	query := `SELECT id FROM refugees WHERE id = $1`
+	err := db.QueryRow(query, id).Scan(&id)
+	return err == nil
+}
 
 func UpdateRefugee(db *sql.DB, refugee structs.Refugee) error {
-	sqlQuery := `UPDATE refugees SET name=$1, age=$2, condition=$3, needs=$4, shelter_id=$5, disaster_id=$6, updated_at=NOW() WHERE id=$7`
-	_, err := db.Exec(sqlQuery, refugee.Name, refugee.Age, refugee.Condition, refugee.Needs, refugee.ShelterID, refugee.DisasterID, refugee.ID)
+	if !isRefugeeExists(db, refugee.ID) {
+		return errors.New("refugee not found")
+	}
+
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if refugee.Name != "" {
+		updateFields = append(updateFields, "name = $"+strconv.Itoa(counter))
+		values = append(values, refugee.Name)
+		counter++
+	}
+	if refugee.Age != 0 {
+		updateFields = append(updateFields, "age = $"+strconv.Itoa(counter))
+		values = append(values, refugee.Age)
+		counter++
+	}
+	if refugee.Condition != "" {
+		updateFields = append(updateFields, "condition = $"+strconv.Itoa(counter))
+		values = append(values, refugee.Condition)
+		counter++
+	}
+	if refugee.Needs != "" {
+		updateFields = append(updateFields, "needs = $"+strconv.Itoa(counter))
+		values = append(values, refugee.Needs)
+		counter++
+	}
+	if refugee.ShelterID != nil {
+		updateFields = append(updateFields, "shelter_id = $"+strconv.Itoa(counter))
+		values = append(values, refugee.ShelterID)
+		counter++
+	}
+	if refugee.DisasterID != nil {
+		updateFields = append(updateFields, "disaster_id = $"+strconv.Itoa(counter))
+		values = append(values, refugee.DisasterID)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE refugees SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, refugee.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
 
 func DeleteRefugee(db *sql.DB, id int) error {
 	sqlQuery := `DELETE FROM refugees WHERE id=$1`

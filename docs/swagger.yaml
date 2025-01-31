@@ -8,11 +8,6 @@ definitions:
         type: string
       result: {}
     type: object
-  structs.ChangeUserRole:
-    properties:
-      role:
-        type: string
-    type: object
   structs.Disaster:
     properties:
       created_at:
@@ -245,6 +240,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all disasters
       tags:
       - Disaster
@@ -336,6 +333,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get disaster by ID
       tags:
       - Disaster
@@ -412,6 +411,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get emergency reports by disaster ID
       tags:
       - Disaster
@@ -443,6 +444,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get evacuation routes by disaster ID
       tags:
       - Disaster
@@ -507,6 +510,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get refugees by disaster ID
       tags:
       - Disaster
@@ -534,6 +539,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get shelters by disaster ID
       tags:
       - Disaster
@@ -590,6 +597,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all distribution logs
       tags:
       - DistributionLog
@@ -680,6 +689,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get distribution log by ID
       tags:
       - DistributionLog
@@ -770,6 +781,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a donation
       tags:
       - Donation
@@ -921,6 +934,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create an emergency report
       tags:
       - EmergencyReport
@@ -1041,6 +1056,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all evacuation routes
       tags:
       - EvacuationRoute
@@ -1131,6 +1148,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get an evacuation route by ID
       tags:
       - EvacuationRoute
@@ -1190,6 +1209,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all logistics
       tags:
       - Logistic
@@ -1280,6 +1301,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get logistic by ID
       tags:
       - Logistic
@@ -1339,6 +1362,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all refugees
       tags:
       - Refugee
@@ -1429,6 +1454,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get refugee by ID
       tags:
       - Refugee
@@ -1468,38 +1495,6 @@ paths:
       summary: Update a refugee
       tags:
       - Refugee
-  /refugees/{id}/distribution-logs:
-    get:
-      description: Menampilkan daftar distribusi bantuan yang diterima oleh pengungsi
-        tertentu
-      parameters:
-      - description: Refugee ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-      summary: Get distribution logs by refugee ID
-      tags:
-      - Refugee
   /shelters:
     get:
       consumes:
@@ -1516,6 +1511,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get all shelters
       tags:
       - Shelter
@@ -1606,6 +1603,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get a shelter by ID
       tags:
       - Shelter
@@ -1673,6 +1672,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get logistics by shelter ID
       tags:
       - Shelter
@@ -1704,6 +1705,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Get refugees by shelter ID
       tags:
       - Shelter
@@ -1852,48 +1855,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Update user
-      tags:
-      - Users
-  /users/{id}/change-role:
-    put:
-      consumes:
-      - application/json
-      description: Admin dapat mengubah role siapa saja, sedangkan user hanya bisa
-        mengubah role sendiri ke donor atau user
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: 'List role: admin, donor, user'
-        in: body
-        name: role
-        required: true
-        schema:
-          $ref: '#/definitions/structs.ChangeUserRole'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/structs.APIResponse'
-      security:
-      - BearerAuth: []
-      summary: Mengubah role pengguna
       tags:
       - Users
   /users/{id}/donations:
@@ -2154,6 +2115,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
       summary: Create a volunteer
       tags:
       - Volunteer

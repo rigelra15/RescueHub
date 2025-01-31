@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"database/sql"
 	"RescueHub/structs"
+	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 func CreateShelter(db *sql.DB, shelter *structs.Shelter) error {
@@ -54,9 +56,61 @@ func GetShelterByID(db *sql.DB, id int) (structs.Shelter, error) {
 	return shelter, nil
 }
 
+func isShelterExists(db *sql.DB, id int) bool {
+	query := `SELECT id FROM shelters WHERE id = $1`
+	err := db.QueryRow(query, id).Scan(&id)
+	return err == nil
+}
+
 func UpdateShelter(db *sql.DB, shelter structs.Shelter) error {
-	sqlQuery := `UPDATE shelters SET name=$1, location=$2, capacity_total=$3, capacity_remaining=$4, emergency_needs=$5, disaster_id=$6, updated_at=NOW() WHERE id=$7`
-	_, err := db.Exec(sqlQuery, shelter.Name, shelter.Location, shelter.CapacityTotal, shelter.CapacityRemaining, shelter.EmergencyNeeds, shelter.DisasterID, shelter.ID)
+	if !isShelterExists(db, shelter.ID) {
+		return errors.New("shelter not found")
+	}
+
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if shelter.Name != "" {
+		updateFields = append(updateFields, "name = $"+strconv.Itoa(counter))
+		values = append(values, shelter.Name)
+		counter++
+	}
+	if shelter.Location != "" {
+		updateFields = append(updateFields, "location = $"+strconv.Itoa(counter))
+		values = append(values, shelter.Location)
+		counter++
+	}
+	if shelter.CapacityTotal != 0 {
+		updateFields = append(updateFields, "capacity_total = $"+strconv.Itoa(counter))
+		values = append(values, shelter.CapacityTotal)
+		counter++
+	}
+	if shelter.CapacityRemaining != 0 {
+		updateFields = append(updateFields, "capacity_remaining = $"+strconv.Itoa(counter))
+		values = append(values, shelter.CapacityRemaining)
+		counter++
+	}
+	if shelter.EmergencyNeeds != "" {
+		updateFields = append(updateFields, "emergency_needs = $"+strconv.Itoa(counter))
+		values = append(values, shelter.EmergencyNeeds)
+		counter++
+	}
+	if shelter.DisasterID != nil {
+		updateFields = append(updateFields, "disaster_id = $"+strconv.Itoa(counter))
+		values = append(values, shelter.DisasterID)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE shelters SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, shelter.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
 		return err
 	}

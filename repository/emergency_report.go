@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"database/sql"
 	"RescueHub/structs"
+	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 func CreateEmergencyReport(db *sql.DB, report *structs.EmergencyReport) error {
@@ -54,9 +56,52 @@ func GetEmergencyReportByID(db *sql.DB, id int) (structs.EmergencyReport, error)
 	return report, nil
 }
 
+func isEmergencyReportExists(db *sql.DB, id int) bool {
+	query := `SELECT EXISTS(SELECT 1 FROM emergency_reports WHERE id = $1)`
+	var exists bool
+	db.QueryRow(query, id).Scan(&exists)
+	return exists
+}
+
 func UpdateEmergencyReport(db *sql.DB, report structs.EmergencyReport) error {
-	sqlQuery := `UPDATE emergency_reports SET user_id=$1, disaster_id=$2, description=$3, location=$4, updated_at=NOW() WHERE id=$5`
-	_, err := db.Exec(sqlQuery, report.UserID, report.DisasterID, report.Description, report.Location, report.ID)
+	if !isEmergencyReportExists(db, report.ID) {
+		return errors.New("emergency report not found")
+	}
+
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if report.UserID != nil {
+		updateFields = append(updateFields, "user_id = $"+strconv.Itoa(counter))
+		values = append(values, report.UserID)
+		counter++
+	}
+	if report.DisasterID != nil {
+		updateFields = append(updateFields, "disaster_id = $"+strconv.Itoa(counter))
+		values = append(values, report.DisasterID)
+		counter++
+	}
+	if report.Description != "" {
+		updateFields = append(updateFields, "description = $"+strconv.Itoa(counter))
+		values = append(values, report.Description)
+		counter++
+	}
+	if report.Location != "" {
+		updateFields = append(updateFields, "location = $"+strconv.Itoa(counter))
+		values = append(values, report.Location)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE emergency_reports SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, report.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
 		return err
 	}

@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS distribution_logs (
     logistic_id INT REFERENCES logistics(id) ON DELETE SET NULL,
     origin VARCHAR(255) NOT NULL,
     destination VARCHAR(255) NOT NULL,
+    distance DECIMAL(10,2) NOT NULL,
     sender_name VARCHAR(255) NOT NULL,
     recipient_name VARCHAR(255) NOT NULL,
     quantity_sent INT NOT NULL,

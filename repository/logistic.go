@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"database/sql"
 	"RescueHub/structs"
+	"database/sql"
 	"errors"
+	"strconv"
+	"strings"
 )
 
 func isValidLogisticsStatus(status string) bool {
@@ -68,18 +70,65 @@ func GetLogisticByID(db *sql.DB, id int) (structs.Logistic, error) {
 	return logistic, nil
 }
 
+func isLogisticExists(db *sql.DB, id int) bool {
+	query := `SELECT EXISTS(SELECT 1 FROM logistics WHERE id = $1)`
+	var exists bool
+	err := db.QueryRow(query, id).Scan(&exists)
+	if err != nil {
+		return false
+	}
+	return exists
+}
+
 func UpdateLogistic(db *sql.DB, logistics structs.Logistic) error {
-	if !isValidLogisticsStatus(logistics.Status) {
-			return errors.New("invalid logistics status")
+	if !isLogisticExists(db, logistics.ID) {
+		return errors.New("logistics not found")
 	}
 
-	sqlQuery := `UPDATE logistics SET type = $1, quantity = $2, status = $3, disaster_id = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5`
-	_, err := db.Exec(sqlQuery, logistics.Type, logistics.Quantity, logistics.Status, logistics.DisasterID, logistics.ID)
+	if logistics.Status != "" && !isValidLogisticsStatus(logistics.Status) {
+		return errors.New("invalid logistics status")
+	}
+
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if logistics.Type != "" {
+		updateFields = append(updateFields, "type = $"+strconv.Itoa(counter))
+		values = append(values, logistics.Type)
+		counter++
+	}
+	if logistics.Quantity != 0 {
+		updateFields = append(updateFields, "quantity = $"+strconv.Itoa(counter))
+		values = append(values, logistics.Quantity)
+		counter++
+	}
+	if logistics.Status != "" {
+		updateFields = append(updateFields, "status = $"+strconv.Itoa(counter))
+		values = append(values, logistics.Status)
+		counter++
+	}
+	if logistics.DisasterID != nil {
+		updateFields = append(updateFields, "disaster_id = $"+strconv.Itoa(counter))
+		values = append(values, logistics.DisasterID)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE logistics SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, logistics.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
-			return err
+		return err
 	}
 	return nil
 }
+
 
 func DeleteLogistic(db *sql.DB, id int) error {
 	sqlQuery := `DELETE FROM logistics WHERE id=$1`

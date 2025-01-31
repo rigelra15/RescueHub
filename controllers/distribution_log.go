@@ -4,8 +4,10 @@ import (
 	"RescueHub/database"
 	"RescueHub/repository"
 	"RescueHub/structs"
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,28 +33,49 @@ func CreateDistributionLog(c *gin.Context) {
 		return
 	}
 
-	distributionLog := &structs.DistributionLog{
-		LogisticID: input.LogisticID,
-		Origin: 	 input.Origin,
-		Destination: input.Destination,
-		Distance: input.Distance,
-		SenderName: input.SenderName,
-		RecipientName: input.RecipientName,
-		QuantitySent: input.QuantitySent,
-		SentAt: input.SentAt,
+	layout := "02/01/2006 15:04"
+	parsedSentAt, err := time.Parse(layout, input.SentAt)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Format tanggal harus 'DD/MM/YYYY HH:mm'",
+		})
+		return
 	}
 
-	err := repository.CreateDistributionLog(database.DbConnection, distributionLog)
+	distributionLog := &structs.DistributionLog{
+		LogisticID:    input.LogisticID,
+		Origin:        input.Origin,
+		Destination:   input.Destination,
+		Distance:      input.Distance,
+		SenderName:    input.SenderName,
+		RecipientName: input.RecipientName,
+		QuantitySent:  input.QuantitySent,
+		SentAt:        parsedSentAt,
+	}
+
+	err = repository.CreateDistributionLog(database.DbConnection, distributionLog)
 	if err != nil {
+		fmt.Println("Error Query:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal mencatat distribusi bantuan",
 		})
 		return
 	}
 
+	responseSentAt := parsedSentAt.Format(layout)
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Distribusi bantuan berhasil dicatat",
-		"result": distributionLog,
+		"result": gin.H{
+			"logistic_id":    distributionLog.LogisticID,
+			"origin":         distributionLog.Origin,
+			"destination":    distributionLog.Destination,
+			"distance":       distributionLog.Distance,
+			"sender_name":    distributionLog.SenderName,
+			"recipient_name": distributionLog.RecipientName,
+			"quantity_sent":  distributionLog.QuantitySent,
+			"sent_at":        responseSentAt,
+		},
 	})
 }
 
@@ -65,6 +88,7 @@ func CreateDistributionLog(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /distribution_logs [get]
 func GetAllDistributionLogs(c *gin.Context) {
 	logs, err := repository.GetAllDistributionLogs(database.DbConnection)
@@ -97,6 +121,7 @@ func GetAllDistributionLogs(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /distribution_logs/{id} [get]
 func GetDistributionLogByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -150,28 +175,57 @@ func UpdateDistributionLog(c *gin.Context) {
 		return
 	}
 
-	distributionLog := structs.DistributionLog{
-		ID:         id,
-		LogisticID: input.LogisticID,
-		Origin:     input.Origin,
-		Destination: input.Destination,
-		Distance: input.Distance,
-		SenderName: input.SenderName,
-		RecipientName: input.RecipientName,
-		QuantitySent: input.QuantitySent,
-		SentAt: input.SentAt,
+	layout := "02/01/2006 15:04"
+	parsedSentAt, err := time.Parse(layout, input.SentAt)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Format tanggal harus 'DD/MM/YYYY HH:mm'",
+		})
+		return
 	}
 
-	err = repository.UpdateDistributionLog(database.DbConnection, distributionLog)
+	distributionLog := &structs.DistributionLog{
+		ID:            id,
+		LogisticID:    input.LogisticID,
+		Origin:        input.Origin,
+		Destination:   input.Destination,
+		Distance:      input.Distance,
+		SenderName:    input.SenderName,
+		RecipientName: input.RecipientName,
+		QuantitySent:  input.QuantitySent,
+		SentAt:        parsedSentAt, 
+	}
+
+	err = repository.UpdateDistributionLog(database.DbConnection, *distributionLog)
 	if err != nil {
+		if err.Error() == "distribution log not found" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Log distribusi tidak ditemukan",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal mengupdate distribusi bantuan",
 		})
 		return
 	}
 
+	responseSentAt := parsedSentAt.Format(layout)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Distribusi bantuan berhasil diperbarui",
+		"result": gin.H{
+			"id":             distributionLog.ID,
+			"logistic_id":    distributionLog.LogisticID,
+			"origin":         distributionLog.Origin,
+			"destination":    distributionLog.Destination,
+			"distance":       distributionLog.Distance,
+			"sender_name":    distributionLog.SenderName,
+			"recipient_name": distributionLog.RecipientName,
+			"quantity_sent":  distributionLog.QuantitySent,
+			"sent_at":        responseSentAt,
+		},
 	})
 }
 

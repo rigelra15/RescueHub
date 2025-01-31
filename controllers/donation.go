@@ -4,6 +4,7 @@ import (
 	"RescueHub/database"
 	"RescueHub/repository"
 	"RescueHub/structs"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -20,6 +21,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /donations [post]
 func CreateDonation(c *gin.Context) {
 	var input structs.DonationInput
@@ -40,6 +42,7 @@ func CreateDonation(c *gin.Context) {
 
 	err := repository.CreateDonation(database.DbConnection, donation)
 	if err != nil {
+		fmt.Println("Error Query:", err)
 		if err.Error() == "invalid donation status" {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Status donasi tidak valid, hanya bisa 'pending', 'confirmed', atau 'rejected'",

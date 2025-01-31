@@ -20,6 +20,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /volunteers [post]
 func CreateVolunteer(c *gin.Context) {
 	var input structs.VolunteerInput
@@ -160,7 +161,14 @@ func UpdateVolunteer(c *gin.Context) {
 	if err != nil {
 		if err.Error() == "invalid volunteer status" {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Status relawan tidak valid, hanya bisa 'available', 'on_mission', atau 'completed'",
+				"error": "Status volunteer tidak valid, hanya bisa 'available', 'on_mission', atau 'completed'",
+			})
+			return
+		}
+
+		if err.Error() == "volunteer not found" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Volunteer tidak ditemukan",
 			})
 			return
 		}

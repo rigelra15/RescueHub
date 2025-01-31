@@ -133,21 +133,12 @@ func UpdateUser(db *sql.DB, user structs.User) error {
 		return err
 	}
 
-	if !isValidUserRole(user.Role) {
-		return errors.New("invalid user role")
-	}
-	
 	if emailExists {
 		return errors.New("email sudah terdaftar")
 	}
 
-	is2FA := false
-	if user.Role == "admin" {
-		is2FA = true
-	}
-
-	sqlQuery := `UPDATE users SET name = $1, email = $2, role = $3, contact = $4, is_2fa = $5, updated_at = CURRENT_TIMESTAMP WHERE id = $6`
-	_, err = db.Exec(sqlQuery, user.Name, user.Email, user.Role, user.Contact, is2FA, user.ID)
+	sqlQuery := `UPDATE users SET name = $1, email = $2, contact = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4`
+	_, err = db.Exec(sqlQuery, user.Name, user.Email, user.Contact, user.ID)
 	if err != nil {
 		return err
 	}
@@ -156,8 +147,8 @@ func UpdateUser(db *sql.DB, user structs.User) error {
 }
 
 func UpdateUserInfoWithoutEmail(db *sql.DB, user structs.User) error {
-	sqlQuery := `UPDATE users SET name = $1, role = $2, contact = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4`
-	_, err := db.Exec(sqlQuery, user.Name, user.Role, user.Contact, user.ID)
+	sqlQuery := `UPDATE users SET name = $1, contact = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3`
+	_, err := db.Exec(sqlQuery, user.Name, user.Contact, user.ID)
 	if err != nil {
 		return err
 	}

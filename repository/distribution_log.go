@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"database/sql"
 	"RescueHub/structs"
+	"database/sql"
 	"errors"
+	"strings"
+	"strconv"
 )
 
 func CreateDistributionLog(db *sql.DB, log *structs.DistributionLog) error {
@@ -54,14 +56,81 @@ func GetDistributionLogByID(db *sql.DB, id int) (structs.DistributionLog, error)
 	return log, nil
 }
 
+func isDistributionLogExists(db *sql.DB, id int) bool {
+	query := `SELECT EXISTS(SELECT 1 FROM distribution_logs WHERE id = $1)`
+	var exists bool
+	err := db.QueryRow(query, id).Scan(&exists)
+	if err != nil {
+		return false
+	}
+	return exists
+}
+
 func UpdateDistributionLog(db *sql.DB, log structs.DistributionLog) error {
-	sqlQuery := `UPDATE distribution_logs SET logistic_id=$1, origin=$2, destination=$3, distance=$4, sender_name=$5, recipient_name=$6, quantity_sent=$7, sent_at=$8, updated_at=CURRENT_TIMESTAMP WHERE id=$9`
-	_, err := db.Exec(sqlQuery, log.LogisticID, log.Origin, log.Destination, log.Distance, log.SenderName, log.RecipientName, log.QuantitySent, log.SentAt, log.ID)
+	if !isDistributionLogExists(db, log.ID) {
+		return errors.New("distribution log not found")
+	}
+
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if log.LogisticID != nil {
+		updateFields = append(updateFields, "logistic_id = $"+strconv.Itoa(counter))
+		values = append(values, log.LogisticID)
+		counter++
+	}
+	if log.Origin != "" {
+		updateFields = append(updateFields, "origin = $"+strconv.Itoa(counter))
+		values = append(values, log.Origin)
+		counter++
+	}
+	if log.Destination != "" {
+		updateFields = append(updateFields, "destination = $"+strconv.Itoa(counter))
+		values = append(values, log.Destination)
+		counter++
+	}
+	if log.Distance != 0 {
+		updateFields = append(updateFields, "distance = $"+strconv.Itoa(counter))
+		values = append(values, log.Distance)
+		counter++
+	}
+	if log.SenderName != "" {
+		updateFields = append(updateFields, "sender_name = $"+strconv.Itoa(counter))
+		values = append(values, log.SenderName)
+		counter++
+	}
+	if log.RecipientName != "" {
+		updateFields = append(updateFields, "recipient_name = $"+strconv.Itoa(counter))
+		values = append(values, log.RecipientName)
+		counter++
+	}
+	if log.QuantitySent != 0 {
+		updateFields = append(updateFields, "quantity_sent = $"+strconv.Itoa(counter))
+		values = append(values, log.QuantitySent)
+		counter++
+	}
+	if !log.SentAt.IsZero() {
+		updateFields = append(updateFields, "sent_at = $"+strconv.Itoa(counter))
+		values = append(values, log.SentAt)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE distribution_logs SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, log.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
 
 func DeleteDistributionLog(db *sql.DB, id int) error {
 	sqlQuery := `DELETE FROM distribution_logs WHERE id=$1`

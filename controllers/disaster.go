@@ -17,6 +17,7 @@ import (
 // @Produce json
 // @Success 200 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters [get]
 func GetAllDisasters(c *gin.Context) {
 	disasters, err := repository.GetAllDisasters(database.DbConnection)
@@ -49,6 +50,7 @@ func GetAllDisasters(c *gin.Context) {
 // @Success 200 {object} structs.Disaster
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters/{id} [get]
 func GetDisasterByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -235,6 +237,7 @@ func DeleteDisaster(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters/{id}/shelters [get]
 func GetSheltersByDisasterID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -341,6 +344,7 @@ func GetLogisticsByDisasterID(c *gin.Context) {
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters/{id}/emergency-reports [get]
 func GetEmergencyReportsByDisasterID(c *gin.Context) {
 	disasterID, err := strconv.Atoi(c.Param("id"))
@@ -373,6 +377,7 @@ func GetEmergencyReportsByDisasterID(c *gin.Context) {
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters/{id}/evacuation-routes [get]
 func GetEvacuationRoutesByDisasterID(c *gin.Context) {
 	disasterID, err := strconv.Atoi(c.Param("id"))
@@ -405,6 +410,7 @@ func GetEvacuationRoutesByDisasterID(c *gin.Context) {
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters/{id}/refugees [get]
 func GetRefugeesByDisasterID(c *gin.Context) {
 	disasterID, err := strconv.Atoi(c.Param("id"))

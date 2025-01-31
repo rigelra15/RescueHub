@@ -177,7 +177,6 @@ func main() {
 		{
 			refugeeRoutes.GET("/", controllers.GetAllRefugees)
 			refugeeRoutes.GET("/:id", controllers.GetRefugeeByID)
-			refugeeRoutes.GET("/:id/distribution-logs", controllers.GetDistributionLogsByRefugeeID)
 
 			protectedRefugeeRoutes := refugeeRoutes.Group("/", middlewares.JWTAuthMiddleware())
 			{

@@ -21,7 +21,7 @@ func GenerateJWT(email, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
 		"role":  role,
-		"exp":   time.Now().Add(time.Hour * 1).Unix(),
+		"exp":   time.Now().Add(time.Hour * 3).Unix(),
 	})
 
 	return token.SignedString(secretKey)

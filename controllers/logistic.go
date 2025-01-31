@@ -68,6 +68,7 @@ func CreateLogistic(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /logistics [get]
 func GetAllLogistics(c *gin.Context) {
 	logistics, err := repository.GetAllLogistics(database.DbConnection)
@@ -100,6 +101,7 @@ func GetAllLogistics(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /logistics/{id} [get]
 func GetLogisticByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -156,6 +158,13 @@ func UpdateLogistic(c *gin.Context) {
 
 	err = repository.UpdateLogistic(database.DbConnection, input)
 	if err != nil {
+		if err.Error() == "logistics not found" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Logistik tidak ditemukan",
+			})
+			return
+		}
+		
 		if err.Error() == "invalid logistics status" {
 			c.JSON(http.StatusBadRequest, gin.H{
 					"error": "Status logistik tidak valid, hanya bisa 'available', 'distributed', atau 'out_of_stock'",

@@ -20,6 +20,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /emergency_reports [post]
 func CreateEmergencyReport(c *gin.Context) {
 	var input structs.EmergencyReportInput
@@ -157,6 +158,13 @@ func UpdateEmergencyReport(c *gin.Context) {
 
 	err = repository.UpdateEmergencyReport(database.DbConnection, emergencyReport)
 	if err != nil {
+		if err.Error() == "emergency report not found" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Laporan darurat tidak ditemukan",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal mengupdate laporan darurat",
 		})

@@ -4,6 +4,8 @@ import (
 	"RescueHub/structs"
 	"database/sql"
 	"errors"
+	"strings"
+	"strconv"
 )
 
 func isDisasterExists(db *sql.DB, id int) bool {
@@ -35,7 +37,6 @@ func CreateDisaster(db *sql.DB, disaster *structs.Disaster) error {
 	sqlQuery := `INSERT INTO disasters (type, location, description, status, reported_by, created_at, updated_at)
 							VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	
-	// Gunakan pointer agar ID bisa diperbarui di struct yang sama
 	err := db.QueryRow(sqlQuery, disaster.Type, disaster.Location, disaster.Description, disaster.Status, disaster.ReportedBy).
 			Scan(&disaster.ID, &disaster.CreatedAt, &disaster.UpdatedAt)
 
@@ -82,21 +83,59 @@ func GetDisasterByID(db *sql.DB, id int) (structs.Disaster, error) {
 }
 
 func UpdateDisaster(db *sql.DB, disaster structs.Disaster) error {
-	if !isValidDisasterStatus(disaster.Status) {
+	if disaster.Status != "" && !isValidDisasterStatus(disaster.Status) {
 		return errors.New("invalid disaster status")
 	}
 
-	if isDisasterExists(db, disaster.ID) {
+	if !isDisasterExists(db, disaster.ID) {
 		return errors.New("disaster not found")
 	}
 
-	sqlQuery := `UPDATE disasters SET type = $1, location = $2, description = $3, status = $4, reported_by = $5, updated_at = CURRENT_TIMESTAMP WHERE id = $6`
-	_, err := db.Exec(sqlQuery, disaster.Type, disaster.Location, disaster.Description, disaster.Status, disaster.ReportedBy, disaster.ID)
+	var updateFields []string
+	var values []interface{}
+	counter := 1
+
+	if disaster.Type != "" {
+		updateFields = append(updateFields, "type = $"+strconv.Itoa(counter))
+		values = append(values, disaster.Type)
+		counter++
+	}
+	if disaster.Location != "" {
+		updateFields = append(updateFields, "location = $"+strconv.Itoa(counter))
+		values = append(values, disaster.Location)
+		counter++
+	}
+	if disaster.Description != "" {
+		updateFields = append(updateFields, "description = $"+strconv.Itoa(counter))
+		values = append(values, disaster.Description)
+		counter++
+	}
+	if disaster.Status != "" {
+		updateFields = append(updateFields, "status = $"+strconv.Itoa(counter))
+		values = append(values, disaster.Status)
+		counter++
+	}
+	if disaster.ReportedBy != 0 {
+		updateFields = append(updateFields, "reported_by = $"+strconv.Itoa(counter))
+		values = append(values, disaster.ReportedBy)
+		counter++
+	}
+
+	if len(updateFields) == 0 {
+		return errors.New("tidak ada field yang dapat diperbarui")
+	}
+
+	updateFields = append(updateFields, "updated_at = NOW()")
+	query := "UPDATE disasters SET " + strings.Join(updateFields, ", ") + " WHERE id = $" + strconv.Itoa(counter)
+	values = append(values, disaster.ID)
+
+	_, err := db.Exec(query, values...)
 	if err != nil {
-			return err
+		return err
 	}
 	return nil
 }
+
 
 func DeleteDisaster(db *sql.DB, id int) error {
 	sqlQuery := `DELETE FROM disasters WHERE id=$1`
