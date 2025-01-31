@@ -16,7 +16,7 @@ func isValidLogisticsStatus(status string) bool {
 	return false
 }
 
-func CreateLogistic(db *sql.DB, logistics structs.Logistic) error {
+func CreateLogistic(db *sql.DB, logistics *structs.Logistic) error {
 	if !isValidLogisticsStatus(logistics.Status) {
 			return errors.New("invalid logistics status")
 	}

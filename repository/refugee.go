@@ -7,7 +7,7 @@ import (
 )
 
 
-func CreateRefugee(db *sql.DB, refugee structs.Refugee) error {
+func CreateRefugee(db *sql.DB, refugee *structs.Refugee) error {
 	sqlQuery := `INSERT INTO refugees (name, age, condition, needs, shelter_id, disaster_id, created_at, updated_at)
 	             VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	err := db.QueryRow(sqlQuery, refugee.Name, refugee.Age, refugee.Condition, refugee.Needs, refugee.ShelterID, refugee.DisasterID).

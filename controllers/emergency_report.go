@@ -30,7 +30,7 @@ func CreateEmergencyReport(c *gin.Context) {
 		return
 	}
 
-	emergencyReport := structs.EmergencyReport{
+	emergencyReport := &structs.EmergencyReport{
 		UserID:      input.UserID,
 		DisasterID:  input.DisasterID,
 		Description: input.Description,

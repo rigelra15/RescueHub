@@ -31,7 +31,7 @@ func CreateRefugee(c *gin.Context) {
 		return
 	}
 
-	refugee := structs.Refugee{
+	refugee := &structs.Refugee{
 		Name:       input.Name,
 		Age:        input.Age,
 		Condition:  input.Condition,

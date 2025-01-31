@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func CreateShelter(db *sql.DB, shelter structs.Shelter) error {
+func CreateShelter(db *sql.DB, shelter *structs.Shelter) error {
 	sqlQuery := `INSERT INTO shelters (name, location, capacity_total, capacity_remaining, emergency_needs, disaster_id, created_at, updated_at)
 	             VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	err := db.QueryRow(sqlQuery, shelter.Name, shelter.Location, shelter.CapacityTotal, shelter.CapacityRemaining, shelter.EmergencyNeeds, shelter.DisasterID).

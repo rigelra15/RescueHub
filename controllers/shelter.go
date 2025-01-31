@@ -31,7 +31,7 @@ func CreateShelter(c *gin.Context) {
 		return
 	}
 
-	shelter := structs.Shelter{
+	shelter := &structs.Shelter{
 		Name:        input.Name,
 		Location:    input.Location,
 		CapacityTotal: input.CapacityTotal,

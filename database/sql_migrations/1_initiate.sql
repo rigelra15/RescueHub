@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS disasters (
     location VARCHAR(255) NOT NULL,
     description TEXT,
     status disaster_status NOT NULL DEFAULT 'active',
-    reported_by INT REFERENCES users(id) NOT NULL,
+    reported_by INT REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS disasters (
 -- Tabel Shelters
 CREATE TABLE IF NOT EXISTS shelters (
     id SERIAL PRIMARY KEY,
-    disaster_id INT REFERENCES disasters(id),
+    disaster_id INT REFERENCES disasters(id) ON DELETE SET NULL,
     name VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
     capacity_total INT NOT NULL,
@@ -50,12 +50,12 @@ CREATE TABLE IF NOT EXISTS shelters (
 -- Tabel Refugees
 CREATE TABLE IF NOT EXISTS refugees (
     id SERIAL PRIMARY KEY,
-    disaster_id INT REFERENCES disasters(id),
+    disaster_id INT REFERENCES disasters(id) ON DELETE SET NULL,
     name VARCHAR(255) NOT NULL,
     age INT NOT NULL,
     condition VARCHAR(100),
     needs TEXT,
-    shelter_id INT REFERENCES shelters(id),
+    shelter_id INT REFERENCES shelters(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS logistics (
     type VARCHAR(255) NOT NULL,
     quantity INT NOT NULL,
     status logistics_status NOT NULL DEFAULT 'available',
-    disaster_id INT REFERENCES disasters(id),
+    disaster_id INT REFERENCES disasters(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS logistics (
 -- Tabel Distribution Logs
 CREATE TABLE IF NOT EXISTS distribution_logs (
     id SERIAL PRIMARY KEY,
-    logistic_id INT REFERENCES logistics(id),
+    logistic_id INT REFERENCES logistics(id) ON DELETE SET NULL,
     origin VARCHAR(255) NOT NULL,
     destination VARCHAR(255) NOT NULL,
     sender_name VARCHAR(255) NOT NULL,
@@ -92,7 +92,7 @@ CREATE TYPE evacuation_status AS ENUM ('safe', 'risky', 'blocked');
 
 CREATE TABLE IF NOT EXISTS evacuation_routes (
     id SERIAL PRIMARY KEY,
-    disaster_id INT REFERENCES disasters(id),
+    disaster_id INT REFERENCES disasters(id) ON DELETE SET NULL,
     origin VARCHAR(255) NOT NULL,
     destination VARCHAR(255) NOT NULL,
     distance DECIMAL(10,2) NOT NULL,
@@ -105,8 +105,8 @@ CREATE TABLE IF NOT EXISTS evacuation_routes (
 -- Tabel Emergency Reports
 CREATE TABLE IF NOT EXISTS emergency_reports (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id),
-    disaster_id INT REFERENCES disasters(id),
+    user_id INT REFERENCES users(id) ON DELETE SET NULL,
+    disaster_id INT REFERENCES disasters(id) ON DELETE SET NULL,
     description TEXT NOT NULL,
     location VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -118,8 +118,8 @@ CREATE TYPE donation_status AS ENUM ('pending', 'confirmed', 'rejected');
 
 CREATE TABLE IF NOT EXISTS donations (
     id SERIAL PRIMARY KEY,
-    donor_id INT REFERENCES users(id) NOT NULL,
-    disaster_id INT REFERENCES disasters(id),
+    donor_id INT REFERENCES users(id) ON DELETE SET NULL,
+    disaster_id INT REFERENCES disasters(id) ON DELETE SET NULL,
     amount DECIMAL(10,2),
     item_name VARCHAR(255),
     status donation_status NOT NULL DEFAULT 'pending',
@@ -132,8 +132,8 @@ CREATE TYPE volunteer_status AS ENUM ('available', 'on_mission', 'completed');
 
 CREATE TABLE IF NOT EXISTS volunteers (
     id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) NOT NULL,
-    disaster_id INT REFERENCES disasters(id),
+    user_id INT REFERENCES users(id) ON DELETE SET NULL,
+    disaster_id INT REFERENCES disasters(id) ON DELETE SET NULL,
     skill VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
     status volunteer_status NOT NULL DEFAULT 'available',

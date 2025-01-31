@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func CreateEmergencyReport(db *sql.DB, report structs.EmergencyReport) error {
+func CreateEmergencyReport(db *sql.DB, report *structs.EmergencyReport) error {
 	sqlQuery := `INSERT INTO emergency_reports (user_id, disaster_id, description, location, created_at, updated_at)
 							VALUES ($1, $2, $3, $4, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	err := db.QueryRow(sqlQuery, report.UserID, report.DisasterID, report.Description, report.Location).

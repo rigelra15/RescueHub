@@ -214,7 +214,12 @@ func ChangeUserRole(c *gin.Context) {
 		return
 	}
 
-	err = repository.UpdateUserRole(database.DbConnection, id, input.Role)
+	is2FA := false
+	if input.Role == "admin" {
+		is2FA = true
+	}
+
+	err = repository.UpdateUserRole(database.DbConnection, id, input.Role, is2FA)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengubah role"})
 		return
@@ -322,12 +327,18 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	user := structs.User{
-		Name:       input.Name,
-		Email:   		input.Email,
-		Password:   hashedPassword,
-		Role:       input.Role,
-		Contact:    input.Contact,
+	is2FA := false
+	if input.Role == "admin" {
+		is2FA = true
+	}
+
+	user := &structs.User{
+		Name:    input.Name,
+		Email:   input.Email,
+		Password: hashedPassword,
+		Role:    input.Role,
+		Contact: input.Contact,
+		Is2FA:   is2FA,
 	}
 
 	err = repository.CreateUser(database.DbConnection, user)
@@ -345,20 +356,19 @@ func CreateUser(c *gin.Context) {
 			})
 			return
 		}
-		
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal membuat user",
 		})
 		return
 	}
 
-	
-
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User berhasil dibuat",
 		"result":  user,
 	})
 }
+
 
 // UpdateUser godoc
 // @Summary Update user
@@ -413,21 +423,26 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := repository.HashPassword(input.Password)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Gagal meng-hash password",
-		})
-		return
+	var hashedPassword string
+	if input.Password != "" {
+		hashedPassword, err = repository.HashPassword(input.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Gagal meng-hash password",
+			})
+			return
+		}
+	} else {
+		hashedPassword = currentUser.Password
 	}
 
 	user := structs.User{
-		ID:         id,
-		Name: 		 	input.Name,
-		Email:      input.Email,
-		Password:   hashedPassword,
-		Role:       input.Role,
-		Contact:    input.Contact,
+		ID:        id,
+		Name:      input.Name,
+		Email:     input.Email,
+		Password:  hashedPassword,
+		Role:      input.Role,
+		Contact:   input.Contact,
 	}
 
 	err = repository.UpdateUser(database.DbConnection, user)

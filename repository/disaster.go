@@ -23,7 +23,7 @@ func isValidDisasterStatus(status string) bool {
 	return false
 }
 
-func CreateDisaster(db *sql.DB, disaster structs.Disaster) error {
+func CreateDisaster(db *sql.DB, disaster *structs.Disaster) error {
 	if !isValidDisasterStatus(disaster.Status) {
 		return errors.New("invalid disaster status")
 	}
@@ -34,11 +34,13 @@ func CreateDisaster(db *sql.DB, disaster structs.Disaster) error {
 
 	sqlQuery := `INSERT INTO disasters (type, location, description, status, reported_by, created_at, updated_at)
 							VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, created_at, updated_at`
+	
+	// Gunakan pointer agar ID bisa diperbarui di struct yang sama
 	err := db.QueryRow(sqlQuery, disaster.Type, disaster.Location, disaster.Description, disaster.Status, disaster.ReportedBy).
 			Scan(&disaster.ID, &disaster.CreatedAt, &disaster.UpdatedAt)
 
 	if err != nil {
-			return err
+		return err
 	}
 
 	return nil

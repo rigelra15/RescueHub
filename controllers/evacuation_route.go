@@ -31,7 +31,7 @@ func CreateEvacuationRoute(c *gin.Context) {
 		return
 	}
 
-	evacuationRoute := structs.EvacuationRoute{
+	evacuationRoute := &structs.EvacuationRoute{
 		DisasterID: 	input.DisasterID,
 		Origin:     	input.Origin,
 		Destination: 	input.Destination,

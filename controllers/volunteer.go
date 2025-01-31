@@ -30,7 +30,7 @@ func CreateVolunteer(c *gin.Context) {
 		return
 	}
 
-	volunteer := structs.Volunteer{
+	volunteer := &structs.Volunteer{
 		UserID		: input.UserID,
 		DisasterID: input.DisasterID,
 		Skill			: input.Skill,

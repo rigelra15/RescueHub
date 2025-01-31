@@ -30,7 +30,7 @@ func CreateDonation(c *gin.Context) {
 		return
 	}
 
-	donation := structs.Donation{
+	donation := &structs.Donation{
 		DonorID:    input.DonorID,
 		DisasterID: input.DisasterID,
 		Amount:     input.Amount,

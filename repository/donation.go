@@ -16,7 +16,7 @@ func isValidDonationStatus(status string) bool {
 	return false
 }
 
-func CreateDonation(db *sql.DB, donation structs.Donation) error {
+func CreateDonation(db *sql.DB, donation *structs.Donation) error {
 	if !isValidDonationStatus(donation.Status) {
 		return errors.New("invalid donation status")
 	}

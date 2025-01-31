@@ -88,13 +88,13 @@ func CountAdmins(db *sql.DB) (int, error) {
 	return count, nil
 }
 
-func UpdateUserRole(db *sql.DB, userID int, newRole string) error {
-	sqlQuery := `UPDATE users SET role = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`
-	_, err := db.Exec(sqlQuery, newRole, userID)
+func UpdateUserRole(db *sql.DB, userID int, newRole string, is2FA bool) error {
+	sqlQuery := `UPDATE users SET role = $1, is_2fa = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3`
+	_, err := db.Exec(sqlQuery, newRole, is2FA, userID)
 	return err
 }
 
-func CreateUser(db *sql.DB, user structs.User) error {
+func CreateUser(db *sql.DB, user *structs.User) error {
 	emailExists, err := IsEmailExists(db, user.Email)
 	if err != nil {
 		return err
@@ -141,8 +141,13 @@ func UpdateUser(db *sql.DB, user structs.User) error {
 		return errors.New("email sudah terdaftar")
 	}
 
-	sqlQuery := `UPDATE users SET name = $1, email = $2, role = $3, contact = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5`
-	_, err = db.Exec(sqlQuery, user.Name, user.Email, user.Role, user.Contact, user.ID)
+	is2FA := false
+	if user.Role == "admin" {
+		is2FA = true
+	}
+
+	sqlQuery := `UPDATE users SET name = $1, email = $2, role = $3, contact = $4, is_2fa = $5, updated_at = CURRENT_TIMESTAMP WHERE id = $6`
+	_, err = db.Exec(sqlQuery, user.Name, user.Email, user.Role, user.Contact, is2FA, user.ID)
 	if err != nil {
 		return err
 	}

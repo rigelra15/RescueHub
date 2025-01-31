@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func CreateVolunteer(db *sql.DB, volunteer structs.Volunteer) error {
+func CreateVolunteer(db *sql.DB, volunteer *structs.Volunteer) error {
 	if !isValidVolunteerStatus(volunteer.Status) {
 			return errors.New("invalid volunteer status")
 	}

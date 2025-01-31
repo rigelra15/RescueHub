@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func CreateDistributionLog(db *sql.DB, log structs.DistributionLog) error {
+func CreateDistributionLog(db *sql.DB, log *structs.DistributionLog) error {
 	sqlQuery := `INSERT INTO distribution_logs (logistic_id, origin, destination, distance, sender_name, recipient_name, quantity_sent, sent_at, created_at, updated_at)
 							VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	err := db.QueryRow(sqlQuery, log.LogisticID, log.Origin, log.Destination, log.Distance, log.SenderName, log.RecipientName, log.QuantitySent, log.SentAt).

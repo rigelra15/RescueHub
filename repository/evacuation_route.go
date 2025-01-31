@@ -16,7 +16,7 @@ func isValidEvacuationStatus(status string) bool {
 	return false
 }
 
-func CreateEvacuationRoute(db *sql.DB, route structs.EvacuationRoute) error {
+func CreateEvacuationRoute(db *sql.DB, route *structs.EvacuationRoute) error {
 	if !isValidEvacuationStatus(route.Status) {
 		return errors.New("invalid evacuation route status")
 	}

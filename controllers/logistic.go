@@ -31,7 +31,7 @@ func CreateLogistic(c *gin.Context) {
 		return
 	}
 
-	logistic := structs.Logistic{
+	logistic := &structs.Logistic{
 		Type:       input.Type,
 		Quantity:   input.Quantity,
 		Status:     input.Status,

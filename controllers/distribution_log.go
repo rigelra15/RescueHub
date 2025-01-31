@@ -31,7 +31,7 @@ func CreateDistributionLog(c *gin.Context) {
 		return
 	}
 
-	distributionLog := structs.DistributionLog{
+	distributionLog := &structs.DistributionLog{
 		LogisticID: input.LogisticID,
 		Origin: 	 input.Origin,
 		Destination: input.Destination,

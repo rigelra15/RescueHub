@@ -95,7 +95,7 @@ func CreateDisaster(c *gin.Context) {
 		return
 	}
 
-	disaster := structs.Disaster{
+	disaster := &structs.Disaster{
 		Type:        input.Type,
 		Location:    input.Location,
 		Description: input.Description,
