@@ -31,7 +31,7 @@ func CreateVolunteer(c *gin.Context) {
 	}
 
 	volunteerInput := structs.Volunteer{
-		DonorID		: input.DonorID,
+		UserID		: input.UserID,
 		DisasterID: input.DisasterID,
 		Skill			: input.Skill,
 		Location	: input.Location,
@@ -148,7 +148,7 @@ func UpdateVolunteer(c *gin.Context) {
 	
 	volunteerInput := structs.Volunteer{
 		ID:       id,
-		DonorID:  input.DonorID,
+		UserID:  input.UserID,
 		DisasterID: input.DisasterID,
 		Skill:    input.Skill,
 		Location: input.Location,

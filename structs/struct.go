@@ -29,24 +29,24 @@ type Disaster struct {
 
 type Shelter struct {
 	ID                int    		`json:"id"`
+	DisasterID        *int    	`json:"disaster_id,omitempty"`
 	Name              string 		`json:"name"`
 	Location          string 		`json:"location"`
 	CapacityTotal     int    		`json:"capacity_total"`
 	CapacityRemaining int    		`json:"capacity_remaining"`
 	EmergencyNeeds    string 		`json:"emergency_needs"`
-	DisasterID        *int    	`json:"disaster_id,omitempty"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 type Refugee struct {
 	ID         int    `json:"id"`
+	ShelterID  *int   `json:"shelter_id,omitempty"`
+	DisasterID *int   `json:"disaster_id,omitempty"`
 	Name       string `json:"name"`
 	Age        int    `json:"age"`
 	Condition  string `json:"condition"`
 	Needs      string `json:"needs"`
-	ShelterID  *int   `json:"shelter_id,omitempty"`
-	DisasterID *int   `json:"disaster_id,omitempty"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
@@ -62,15 +62,15 @@ type Logistic struct {
 }
 
 type DistributionLog struct {
-	ID            int    `json:"id"`
-	LogisticID    *int   `json:"logistic_id,omitempty"`
-	Origin        string `json:"origin"`
-	Destination   string `json:"destination"`
-	Distance      float64 `json:"distance"`
-	SenderName    string `json:"sender_name"`
-	RecipientName string `json:"recipient_name"`
-	QuantitySent  int    `json:"quantity_sent"`
-	SentAt        string `json:"sent_at"`
+	ID            int    		`json:"id"`
+	LogisticID    *int   		`json:"logistic_id,omitempty"`
+	Origin        string 		`json:"origin"`
+	Destination   string 		`json:"destination"`
+	Distance      float64 	`json:"distance"`
+	SenderName    string 		`json:"sender_name"`
+	RecipientName string 		`json:"recipient_name"`
+	QuantitySent  int    		`json:"quantity_sent"`
+	SentAt        string 		`json:"sent_at"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
@@ -99,7 +99,7 @@ type EmergencyReport struct {
 
 type Donation struct {
 	ID         int     `json:"id"`
-	DonorID		 *int    `json:"user_id,omitempty"`
+	DonorID		 *int    `json:"donor_id,omitempty"`
 	DisasterID *int    `json:"disaster_id,omitempty"`
 	Amount     float64 `json:"amount"`
 	ItemName	 string  `json:"item_name"`
@@ -109,14 +109,14 @@ type Donation struct {
 }
 
 type Volunteer struct {
-	ID         int    `json:"id"`
-	DonorID    *int   `json:"donor_id,omitempty"`
-	DisasterID *int   `json:"disaster_id,omitempty"`
-	Skill      string `json:"skill"`
-	Location   string `json:"location"`
-	Status     string `json:"status"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	ID         int    		`json:"id"`
+	UserID     *int    		`json:"user_id,omitempty"`
+	DisasterID *int   		`json:"disaster_id,omitempty"`
+	Skill      string 		`json:"skill"`
+	Location   string 		`json:"location"`
+	Status     string 		`json:"status"`
+	CreatedAt  time.Time 	`json:"created_at"`
+	UpdatedAt  time.Time 	`json:"updated_at"`
 }
 
 type Login struct {
@@ -220,9 +220,9 @@ type DonationInput struct {
 }
 
 type VolunteerInput struct {
-	DonorID    *int   `json:"donor_id,omitempty"`
-	DisasterID *int   `json:"disaster_id,omitempty"`
-	Skill      string `json:"skill"`
-	Location   string `json:"location"`
-	Status     string `json:"status"`
+	UserID    	*int   `json:"user_id,omitempty"`
+	DisasterID 	*int   `json:"disaster_id,omitempty"`
+	Skill      	string `json:"skill"`
+	Location   	string `json:"location"`
+	Status     	string `json:"status"`
 }

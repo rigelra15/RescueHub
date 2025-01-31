@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS disasters (
     location VARCHAR(255) NOT NULL,
     description TEXT,
     status disaster_status NOT NULL DEFAULT 'active',
-    reported_by INT REFERENCES users(id),
+    reported_by INT REFERENCES users(id) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -118,12 +118,11 @@ CREATE TYPE donation_status AS ENUM ('pending', 'confirmed', 'rejected');
 
 CREATE TABLE IF NOT EXISTS donations (
     id SERIAL PRIMARY KEY,
-    donor_id INT REFERENCES users(id),
+    donor_id INT REFERENCES users(id) NOT NULL,
     disaster_id INT REFERENCES disasters(id),
     amount DECIMAL(10,2),
     item_name VARCHAR(255),
     status donation_status NOT NULL DEFAULT 'pending',
-    donated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

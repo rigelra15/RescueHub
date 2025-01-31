@@ -210,14 +210,14 @@ definitions:
     properties:
       disaster_id:
         type: integer
-      donor_id:
-        type: integer
       location:
         type: string
       skill:
         type: string
       status:
         type: string
+      user_id:
+        type: integer
     type: object
 host: localhost:8080
 info:

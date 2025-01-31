@@ -3484,9 +3484,6 @@ const docTemplate = `{
                 "disaster_id": {
                     "type": "integer"
                 },
-                "donor_id": {
-                    "type": "integer"
-                },
                 "location": {
                     "type": "string"
                 },
@@ -3495,6 +3492,9 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         }

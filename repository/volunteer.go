@@ -11,9 +11,9 @@ func CreateVolunteer(db *sql.DB, volunteer structs.Volunteer) error {
 			return errors.New("invalid volunteer status")
 	}
 
-	sqlQuery := `INSERT INTO volunteers (donor_id, disaster_id, skill, location, status, created_at, updated_at)
+	sqlQuery := `INSERT INTO volunteers (user_id, disaster_id, skill, location, status, created_at, updated_at)
 							 VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, created_at, updated_at`
-	err := db.QueryRow(sqlQuery, volunteer.DonorID, volunteer.DisasterID, volunteer.Skill, volunteer.Location, volunteer.Status).
+	err := db.QueryRow(sqlQuery, volunteer.UserID, volunteer.DisasterID, volunteer.Skill, volunteer.Location, volunteer.Status).
 			Scan(&volunteer.ID, &volunteer.CreatedAt, &volunteer.UpdatedAt)
 
 	if err != nil {
@@ -35,7 +35,7 @@ func GetAllVolunteers(db *sql.DB) ([]structs.Volunteer, error) {
 	var volunteers []structs.Volunteer
 	for rows.Next() {
 		var volunteer structs.Volunteer
-		err := rows.Scan(&volunteer.ID, &volunteer.DonorID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
+		err := rows.Scan(&volunteer.ID, &volunteer.UserID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -53,7 +53,7 @@ func GetAllVolunteers(db *sql.DB) ([]structs.Volunteer, error) {
 func GetVolunteerByID(db *sql.DB, id int) (structs.Volunteer, error) {
 	query := `SELECT id, user_id, disaster_id, name, skill, location, status, created_at, updated_at FROM volunteers WHERE id = $1`
 	var volunteer structs.Volunteer
-	err := db.QueryRow(query, id).Scan(&volunteer.ID, &volunteer.DonorID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
+	err := db.QueryRow(query, id).Scan(&volunteer.ID, &volunteer.UserID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -70,7 +70,7 @@ func UpdateVolunteer(db *sql.DB, volunteer structs.Volunteer) error {
 	}
 
 	sqlQuery := `UPDATE volunteers SET user_id=$1, disaster_id=$2, skill=$3, location=$4, status=$5, updated_at=NOW() WHERE id=$6`
-	_, err := db.Exec(sqlQuery, volunteer.DonorID, volunteer.DisasterID, volunteer.Skill, volunteer.Location, volunteer.Status, volunteer.ID)
+	_, err := db.Exec(sqlQuery, volunteer.UserID, volunteer.DisasterID, volunteer.Skill, volunteer.Location, volunteer.Status, volunteer.ID)
 	if err != nil {
 			return err
 	}

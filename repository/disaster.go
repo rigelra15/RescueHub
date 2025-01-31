@@ -139,7 +139,7 @@ func GetVolunteersByDisasterID(db *sql.DB, disasterID int) ([]structs.Volunteer,
 
 	for rows.Next() {
 		var volunteer structs.Volunteer
-		err := rows.Scan(&volunteer.ID, &volunteer.DonorID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
+		err := rows.Scan(&volunteer.ID, &volunteer.UserID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
 		if err != nil {
 			return volunteers, err
 		}
