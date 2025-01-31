@@ -50,6 +50,7 @@ func CreateRefugee(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Data pengungsi berhasil dibuat",
+		"result":  refugee,
 	})
 }
 

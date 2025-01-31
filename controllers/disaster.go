@@ -127,6 +127,7 @@ func CreateDisaster(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Berhasil membuat laporan bencana",
+		"result": disaster,
 	})
 }
 

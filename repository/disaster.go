@@ -33,7 +33,7 @@ func CreateDisaster(db *sql.DB, disaster structs.Disaster) error {
 	}
 
 	sqlQuery := `INSERT INTO disasters (type, location, description, status, reported_by, created_at, updated_at)
-							 VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, created_at, updated_at`
+							VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	err := db.QueryRow(sqlQuery, disaster.Type, disaster.Location, disaster.Description, disaster.Status, disaster.ReportedBy).
 			Scan(&disaster.ID, &disaster.CreatedAt, &disaster.UpdatedAt)
 

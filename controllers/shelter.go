@@ -50,6 +50,7 @@ func CreateShelter(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Shelter berhasil dibuat",
+		"result":  shelter,
 	})
 }
 

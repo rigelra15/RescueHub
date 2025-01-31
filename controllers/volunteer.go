@@ -30,7 +30,7 @@ func CreateVolunteer(c *gin.Context) {
 		return
 	}
 
-	volunteerInput := structs.Volunteer{
+	volunteer := structs.Volunteer{
 		UserID		: input.UserID,
 		DisasterID: input.DisasterID,
 		Skill			: input.Skill,
@@ -38,7 +38,7 @@ func CreateVolunteer(c *gin.Context) {
 		Status		: input.Status,
 	}
 
-	err := repository.CreateVolunteer(database.DbConnection, volunteerInput)
+	err := repository.CreateVolunteer(database.DbConnection, volunteer)
 	if err != nil {
 		if err.Error() == "invalid volunteer status" {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -55,6 +55,7 @@ func CreateVolunteer(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Relawan berhasil dicatat",
+		"result":  volunteer,
 	})
 }
 

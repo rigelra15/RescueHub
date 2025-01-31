@@ -57,6 +57,7 @@ func CreateEvacuationRoute(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Jalur evakuasi berhasil dicatat",
+		"result":  evacuationRoute,
 	})
 }
 

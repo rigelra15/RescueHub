@@ -47,6 +47,7 @@ func CreateEmergencyReport(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Laporan darurat berhasil dicatat",
+		"result":  emergencyReport,
 	})
 }
 

@@ -356,6 +356,7 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User berhasil dibuat",
+		"result":  user,
 	})
 }
 

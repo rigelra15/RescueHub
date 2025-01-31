@@ -52,6 +52,7 @@ func CreateDistributionLog(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Distribusi bantuan berhasil dicatat",
+		"result": distributionLog,
 	})
 }
 

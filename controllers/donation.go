@@ -55,6 +55,7 @@ func CreateDonation(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Donasi berhasil dicatat",
+		"result":  donation,
 	})
 }
 
