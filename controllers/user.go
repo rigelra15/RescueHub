@@ -153,6 +153,76 @@ func Enable2FA(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "2FA berhasil " + status})
 }
 
+// ChangeUserRole godoc
+// @Summary Mengubah role pengguna
+// @Description Admin dapat mengubah role siapa saja, sedangkan user hanya bisa mengubah role sendiri ke donor atau user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param role body structs.ChangeUserRole true "List role: admin, donor, user"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 403 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /users/{id}/change-role [put]
+func ChangeUserRole(c *gin.Context) {
+	var input struct {
+		Role string `json:"role"`
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid"})
+		return
+	}
+
+	validRoles := map[string]bool{
+		"admin": true, "donor": true, "user": true,
+	}
+
+	if !validRoles[input.Role] {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Role tidak valid"})
+		return
+	}
+
+	authEmail, exists := c.Get("email")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Tidak dapat mengidentifikasi pengguna"})
+		return
+	}
+
+	currentUser, err := repository.GetUserByEmail(database.DbConnection, authEmail.(string))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Pengguna tidak ditemukan"})
+		return
+	}
+
+	if currentUser.ID != id && currentUser.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Anda tidak memiliki izin untuk mengubah role pengguna lain"})
+		return
+	}
+
+	if currentUser.Role != "admin" && input.Role == "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Anda tidak memiliki izin untuk mengubah role ke admin"})
+		return
+	}
+
+	err = repository.UpdateUserRole(database.DbConnection, id, input.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengubah role"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Role pengguna berhasil diperbarui"})
+}
+
 // GetAllUsers godoc
 // @Summary Get all users
 // @Description Mendapatkan semua user
@@ -219,13 +289,27 @@ func GetUserByID(c *gin.Context) {
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
-// @Security BearerAuth
 // @Router /users [post]
 func CreateUser(c *gin.Context) {
 	var input structs.UserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Input tidak valid",
+		})
+		return
+	}
+
+	adminCount, err := repository.CountAdmins(database.DbConnection)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Gagal memeriksa jumlah admin",
+		})
+		return
+	}
+
+	if adminCount > 0 && input.Role == "admin" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "Pendaftaran dengan role admin tidak diizinkan",
 		})
 		return
 	}
@@ -303,6 +387,28 @@ func UpdateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Input tidak valid",
 		})
+		return
+	}
+
+	authEmail, exists := c.Get("email")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Tidak dapat mengidentifikasi pengguna"})
+		return
+	}
+
+	currentUser, err := repository.GetUserByEmail(database.DbConnection, authEmail.(string))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Pengguna tidak ditemukan"})
+		return
+	}
+
+	if currentUser.ID == id && input.Role == "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Anda tidak bisa mengubah role Anda sendiri menjadi admin"})
+		return
+	}
+
+	if currentUser.Role != "admin" && input.Role != "" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Anda tidak memiliki izin untuk mengubah role"})
 		return
 	}
 

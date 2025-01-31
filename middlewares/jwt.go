@@ -11,6 +11,8 @@ import (
 	"RescueHub/database"
 	"RescueHub/repository"
 	"strconv"
+	"database/sql"
+	"fmt"
 )
 
 var secretKey = []byte(os.Getenv("JWT_SECRET"))
@@ -195,13 +197,11 @@ func RequireVolunteerOrRole(messages string, requiredRole string) gin.HandlerFun
 			return
 		}
 
-		// Jika user adalah admin, izinkan langsung
 		if role.(string) == requiredRole {
 			c.Next()
 			return
 		}
 
-		// Cek apakah user adalah volunteer dengan query SQL
 		user, err := repository.GetUserByEmail(database.DbConnection, email.(string))
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -220,16 +220,112 @@ func RequireVolunteerOrRole(messages string, requiredRole string) gin.HandlerFun
 			return
 		}
 
-		// Jika user adalah volunteer, izinkan akses
 		if isVolunteer {
 			c.Next()
 			return
 		}
 
-		// Jika bukan volunteer atau role tertentu, tolak akses
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": messages,
 		})
 		c.Abort()
+	}
+}
+
+func RequireSelfForRelatedEntities(messages, tableName, userColumn string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, roleExists := c.Get("role")
+		email, emailExists := c.Get("email")
+		if !emailExists || !roleExists {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Tidak memiliki akses",
+			})
+			c.Abort()
+			return
+		}
+
+		if role.(string) == "admin" {
+			c.Next()
+			return
+		}
+
+		user, err := repository.GetUserByEmail(database.DbConnection, email.(string))
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Pengguna tidak ditemukan",
+			})
+			c.Abort()
+			return
+		}
+
+		entityIDParam := c.Param("id")
+		entityID, err := strconv.Atoi(entityIDParam)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "ID tidak valid",
+			})
+			c.Abort()
+			return
+		}
+
+		var ownerID int
+		query := fmt.Sprintf("SELECT %s FROM %s WHERE id = $1", userColumn, tableName)
+		err = database.DbConnection.QueryRow(query, entityID).Scan(&ownerID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, gin.H{
+					"error": "Data tidak ditemukan",
+				})
+				c.Abort()
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Gagal mengambil data",
+			})
+			c.Abort()
+			return
+		}
+
+		if user.ID != ownerID {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": messages,
+			})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
+func RequireAdminOrSelfForRoleChange() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		_, roleExists := c.Get("role")
+		email, emailExists := c.Get("email")
+		userIDParam := c.Param("id")
+		userID, err := strconv.Atoi(userIDParam)
+
+		if !roleExists || !emailExists || err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Tidak memiliki akses",
+			})
+			c.Abort()
+			return
+		}
+
+		currentUser, err := repository.GetUserByEmail(database.DbConnection, email.(string))
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Pengguna tidak ditemukan"})
+			c.Abort()
+			return
+		}
+
+		if currentUser.ID != userID && currentUser.Role != "admin" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Anda tidak memiliki izin untuk mengubah role pengguna lain"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
 	}
 }

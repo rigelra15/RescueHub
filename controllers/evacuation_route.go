@@ -20,6 +20,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /evacuation_routes [post]
 func CreateEvacuationRoute(c *gin.Context) {
 	var input structs.EvacuationRouteInput
@@ -134,6 +135,7 @@ func GetEvacuationRouteByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /evacuation_routes/{id} [put]
 func UpdateEvacuationRoute(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -192,6 +194,7 @@ func UpdateEvacuationRoute(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /evacuation_routes/{id} [delete]
 func DeleteEvacuationRoute(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

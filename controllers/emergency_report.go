@@ -59,6 +59,7 @@ func CreateEmergencyReport(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /emergency_reports [get]
 func GetAllEmergencyReports(c *gin.Context) {
 	reports, err := repository.GetAllEmergencyReports(database.DbConnection)
@@ -91,6 +92,7 @@ func GetAllEmergencyReports(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /emergency_reports/{id} [get]
 func GetEmergencyReportByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -125,6 +127,7 @@ func GetEmergencyReportByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /emergency_reports/{id} [put]
 func UpdateEmergencyReport(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -174,6 +177,7 @@ func UpdateEmergencyReport(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /emergency_reports/{id} [delete]
 func DeleteEmergencyReport(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

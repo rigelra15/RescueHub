@@ -20,6 +20,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /distribution_logs [post]
 func CreateDistributionLog(c *gin.Context) {
 	var input structs.DistributionLogInput
@@ -129,6 +130,7 @@ func GetDistributionLogByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /distribution_logs/{id} [put]
 func UpdateDistributionLog(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -182,6 +184,7 @@ func UpdateDistributionLog(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /distribution_logs/{id} [delete]
 func DeleteDistributionLog(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

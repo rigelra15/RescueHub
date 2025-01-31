@@ -129,7 +129,7 @@ func GetSheltersByDisasterID(db *sql.DB, disasterID int) ([]structs.Shelter, err
 
 func GetVolunteersByDisasterID(db *sql.DB, disasterID int) ([]structs.Volunteer, error) {
 	var volunteers []structs.Volunteer
-	query := `SELECT id, user_id, disaster_id, skill, location, status, created_at, updated_at 
+	query := `SELECT id, donor_id, disaster_id, skill, location, status, created_at, updated_at 
 	          FROM volunteers WHERE disaster_id = $1`
 	rows, err := db.Query(query, disasterID)
 	if err != nil {
@@ -139,7 +139,7 @@ func GetVolunteersByDisasterID(db *sql.DB, disasterID int) ([]structs.Volunteer,
 
 	for rows.Next() {
 		var volunteer structs.Volunteer
-		err := rows.Scan(&volunteer.ID, &volunteer.UserID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
+		err := rows.Scan(&volunteer.ID, &volunteer.DonorID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
 		if err != nil {
 			return volunteers, err
 		}
@@ -209,4 +209,33 @@ func GetEvacuationRoutesByDisasterID(db *sql.DB, disasterID int) ([]structs.Evac
 		routes = append(routes, route)
 	}
 	return routes, nil
+}
+
+func GetRefugeesByDisasterID(db *sql.DB, disasterID int) ([]structs.Refugee, error) {
+	query := `SELECT id, name, age, condition, needs, shelter_id, created_at, updated_at 
+	          FROM refugees WHERE disaster_id = $1`
+	rows, err := db.Query(query, disasterID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var refugees []structs.Refugee
+	for rows.Next() {
+		var refugee structs.Refugee
+		err := rows.Scan(
+			&refugee.ID, &refugee.Name, &refugee.Age, &refugee.Condition, 
+			&refugee.Needs, &refugee.ShelterID, &refugee.CreatedAt, &refugee.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		refugees = append(refugees, refugee)
+	}
+
+	if len(refugees) == 0 {
+		return nil, errors.New("tidak ada daftar pengungsi yang tersedia")
+	}
+
+	return refugees, nil
 }

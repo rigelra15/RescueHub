@@ -20,6 +20,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /logistics [post]
 func CreateLogistic(c *gin.Context) {
 	var input structs.LogisticInput
@@ -132,6 +133,7 @@ func GetLogisticByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /logistics/{id} [put]
 func UpdateLogistic(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -181,6 +183,7 @@ func UpdateLogistic(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /logistics/{id} [delete]
 func DeleteLogistic(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

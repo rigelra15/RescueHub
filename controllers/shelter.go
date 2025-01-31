@@ -20,6 +20,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /shelters [post]
 func CreateShelter(c *gin.Context) {
 	var input structs.ShelterInput
@@ -126,6 +127,7 @@ func GetShelterByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /shelters/{id} [put]
 func UpdateShelter(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -168,6 +170,7 @@ func UpdateShelter(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /shelters/{id} [delete]
 func DeleteShelter(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

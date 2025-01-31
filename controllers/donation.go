@@ -67,6 +67,7 @@ func CreateDonation(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /donations [get]
 func GetAllDonations(c *gin.Context) {
 	donations, err := repository.GetAllDonations(database.DbConnection)
@@ -92,6 +93,7 @@ func GetAllDonations(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /donations/{id} [get]
 func GetDonationByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -126,6 +128,7 @@ func GetDonationByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /donations/{id} [put]
 func UpdateDonation(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -183,6 +186,7 @@ func UpdateDonation(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /donations/{id} [delete]
 func DeleteDonation(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

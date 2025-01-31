@@ -30,7 +30,7 @@ var (
 // @contact.name Rigel Ramadhani W.
 // @contact.url https://github.com/rigelra15
 
-// @host rescuehub-production.up.railway.app
+// @host localhost:8080
 // @BasePath /api
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -47,21 +47,21 @@ func main() {
 		panic("JWT_SECRET tidak ditemukan di environment variables")
 	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("PGHOST"),
-		os.Getenv("PGPORT"),
-		os.Getenv("PGUSER"),
-		os.Getenv("PGPASSWORD"),
-		os.Getenv("PGDATABASE"),
-	)
-
 	// psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-	// 	"localhost",
-	// 	"5432",
-	// 	"postgres",
-	// 	"postgres",
-	// 	"rescue_hub",
+	// 	os.Getenv("PGHOST"),
+	// 	os.Getenv("PGPORT"),
+	// 	os.Getenv("PGUSER"),
+	// 	os.Getenv("PGPASSWORD"),
+	// 	os.Getenv("PGDATABASE"),
 	// )
+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		"localhost",
+		"5432",
+		"postgres",
+		"postgres",
+		"rescue_hub",
+	)
 
 	DB, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
@@ -103,8 +103,9 @@ func main() {
 				protectedUserRoutes.PUT("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa mengedit akun Anda sendiri", "admin"), controllers.UpdateUser)
 				protectedUserRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole("Anda hanya bisa menghapus akun Anda sendiri", "admin"), controllers.DeleteUser)
 				protectedUserRoutes.PUT("/enable-2fa", middlewares.RequireSelfFor2FA(), controllers.Enable2FA)
+				protectedUserRoutes.PUT("/:id/change-role", middlewares.RequireAdminOrSelfForRoleChange(), controllers.ChangeUserRole)
 				protectedUserRoutes.PUT("/:id/edit-info", middlewares.RequireSameUserOrRole("Anda hanya bisa mengedit info akun Anda sendiri", "admin"), controllers.UpdateUserInfoWithoutEmail)
-				protectedUserRoutes.GET("/:id/emergency-reports", middlewares.RequireSameUserOrRole("Anda hanya bisa melihat laporan darurat Anda sendiri", "user"), controllers.GetEmergencyReportsByUserID)
+				protectedUserRoutes.GET("/:id/emergency-reports", middlewares.RequireSameUserOrRole("Anda hanya bisa melihat laporan darurat Anda sendiri", "admin"), controllers.GetEmergencyReportsByUserID)
 			}
 		}
 
@@ -112,6 +113,8 @@ func main() {
 		{
 			disasterRoutes.GET("/", controllers.GetAllDisasters)
 			disasterRoutes.GET("/:id", controllers.GetDisasterByID)
+			disasterRoutes.GET("/:id/refugees", controllers.GetRefugeesByDisasterID)
+			disasterRoutes.GET("/:id/shelters", controllers.GetSheltersByDisasterID)
 			disasterRoutes.GET("/:id/emergency-reports", controllers.GetEmergencyReportsByDisasterID)
 			disasterRoutes.GET("/:id/evacuation-routes", controllers.GetEvacuationRoutesByDisasterID)
 
@@ -131,11 +134,6 @@ func main() {
 					"Akses ditolak, hanya admin yang bisa menghapus laporan bencana",
 					"admin",
 				), controllers.DeleteDisaster)
-
-				protectedDisasterRoutes.GET("/:id/shelters", middlewares.RequireVolunteerOrRole(
-					"Akses ditolak, hanya admin dan relawan yang bisa melihat daftar shelter",
-					"admin",
-				), controllers.GetSheltersByDisasterID)
 
 				protectedDisasterRoutes.GET("/:id/volunteers", middlewares.RequireVolunteerOrRole(
 					"Akses ditolak, hanya admin dan relawan yang bisa melihat daftar relawan",
@@ -284,19 +282,22 @@ func main() {
 					"admin",
 				), controllers.GetAllEmergencyReports)
 
-				protectedEmergencyReportRoutes.GET("/:id", middlewares.RequireSameUserOrRole(
+				protectedEmergencyReportRoutes.GET("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa melihat laporan darurat Anda sendiri",
-					"admin",
+					"emergency_reports",
+					"user_id",
 				), controllers.GetEmergencyReportByID)
-
-				protectedEmergencyReportRoutes.PUT("/:id", middlewares.RequireSameUserOrRole(
+			
+				protectedEmergencyReportRoutes.PUT("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa mengedit laporan darurat Anda sendiri",
-					"admin",
+					"emergency_reports",
+					"user_id",
 				), controllers.UpdateEmergencyReport)
-
-				protectedEmergencyReportRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole(
+			
+				protectedEmergencyReportRoutes.DELETE("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa menghapus laporan darurat Anda sendiri",
-					"admin",
+					"emergency_reports",
+					"user_id",
 				), controllers.DeleteEmergencyReport)
 			}
 		}
@@ -313,19 +314,22 @@ func main() {
 					"admin", "donor",
 				), controllers.GetAllDonations)
 
-				protectedDonationRoutes.GET("/:id", middlewares.RequireSameUserOrRole(
+				protectedDonationRoutes.GET("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa melihat donasi Anda sendiri",
-					"admin",
+					"donations",
+					"donor_id",
 				), controllers.GetDonationByID)
-
-				protectedDonationRoutes.PUT("/:id", middlewares.RequireSameUserOrRole(
+			
+				protectedDonationRoutes.PUT("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa mengedit donasi Anda sendiri",
-					"admin",
+					"donations",
+					"donor_id",
 				), controllers.UpdateDonation)
-
-				protectedDonationRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole(
+			
+				protectedDonationRoutes.DELETE("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa menghapus donasi Anda sendiri",
-					"admin",
+					"donations",
+					"donor_id",
 				), controllers.DeleteDonation)
 			}
 		}
@@ -341,19 +345,22 @@ func main() {
 					"admin",
 				), controllers.GetAllVolunteers)
 
-				protectedVolunteerRoutes.GET("/:id", middlewares.RequireSameUserOrRole(
+				protectedVolunteerRoutes.GET("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa melihat informasi relawan Anda sendiri",
-					"admin",
+					"volunteers",
+					"user_id",
 				), controllers.GetVolunteerByID)
 
-				protectedVolunteerRoutes.PUT("/:id", middlewares.RequireSameUserOrRole(
+				protectedVolunteerRoutes.PUT("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa mengedit informasi relawan Anda sendiri",
-					"admin",
+					"volunteers",
+					"user_id",
 				), controllers.UpdateVolunteer)
 
-				protectedVolunteerRoutes.DELETE("/:id", middlewares.RequireSameUserOrRole(
+				protectedVolunteerRoutes.DELETE("/:id", middlewares.RequireSelfForRelatedEntities(
 					"Anda hanya bisa menghapus status relawan Anda sendiri",
-					"admin",
+					"volunteers",
+					"user_id",
 				), controllers.DeleteVolunteer)
 			}
 		}

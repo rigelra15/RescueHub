@@ -20,6 +20,7 @@ import (
 // @Success 201 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /refugees [post]
 func CreateRefugee(c *gin.Context) {
 	var input structs.RefugeeInput
@@ -127,6 +128,7 @@ func GetRefugeeByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /refugees/{id} [put]
 func UpdateRefugee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -178,6 +180,7 @@ func UpdateRefugee(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /refugees/{id} [delete]
 func DeleteRefugee(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

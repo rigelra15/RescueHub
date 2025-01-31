@@ -110,7 +110,7 @@ type Donation struct {
 
 type Volunteer struct {
 	ID         int    `json:"id"`
-	UserID     int    `json:"user_id"`
+	DonorID    *int   `json:"donor_id,omitempty"`
 	DisasterID *int   `json:"disaster_id,omitempty"`
 	Skill      string `json:"skill"`
 	Location   string `json:"location"`
@@ -145,6 +145,10 @@ type UpdateUserInfoWithoutEmail struct {
 	Name    string `json:"name"`
 	Role    string `json:"role"`
 	Contact string `json:"contact"`
+}
+
+type ChangeUserRole struct {
+	Role string `json:"role"`
 }
 
 type DisasterInput struct {
@@ -216,7 +220,7 @@ type DonationInput struct {
 }
 
 type VolunteerInput struct {
-	UserID     int    `json:"user_id"`
+	DonorID    *int   `json:"donor_id,omitempty"`
 	DisasterID *int   `json:"disaster_id,omitempty"`
 	Skill      string `json:"skill"`
 	Location   string `json:"location"`

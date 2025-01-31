@@ -78,6 +78,22 @@ func IsUserVolunteer(db *sql.DB, userID int) (bool, error) {
 	return exists, nil
 }
 
+func CountAdmins(db *sql.DB) (int, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM users WHERE role = 'admin'`
+	err := db.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func UpdateUserRole(db *sql.DB, userID int, newRole string) error {
+	sqlQuery := `UPDATE users SET role = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`
+	_, err := db.Exec(sqlQuery, newRole, userID)
+	return err
+}
+
 func CreateUser(db *sql.DB, user structs.User) error {
 	emailExists, err := IsEmailExists(db, user.Email)
 	if err != nil {

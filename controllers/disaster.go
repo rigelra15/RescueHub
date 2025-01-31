@@ -84,6 +84,7 @@ func GetDisasterByID(c *gin.Context) {
 // @Failure 400 {object} structs.APIResponse
 // @Failure 401 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters [post]
 func CreateDisaster(c *gin.Context) {
 	var input structs.DisasterInput
@@ -143,6 +144,7 @@ func CreateDisaster(c *gin.Context) {
 // @Failure 401 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /disasters/{id} [put]
 func UpdateDisaster(c *gin.Context) {
 	var input structs.DisasterInput
@@ -232,7 +234,6 @@ func DeleteDisaster(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
-// @Security BearerAuth
 // @Router /disasters/{id}/shelters [get]
 func GetSheltersByDisasterID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -391,4 +392,37 @@ func GetEvacuationRoutesByDisasterID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"result": routes})
+}
+
+// GetRefugeesByDisasterID godoc
+// @Summary Get refugees by disaster ID
+// @Description Menampilkan daftar pengungsi untuk bencana tertentu
+// @Tags Disaster
+// @Produce json
+// @Param id path int true "Disaster ID"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 404 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Router /disasters/{id}/refugees [get]
+func GetRefugeesByDisasterID(c *gin.Context) {
+	disasterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "ID bencana tidak valid",
+		})
+		return
+	}
+
+	refugees, err := repository.GetRefugeesByDisasterID(database.DbConnection, disasterID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Tidak ada daftar pengungsi yang tersedia",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": refugees,
+	})
 }

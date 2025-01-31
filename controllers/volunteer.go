@@ -31,11 +31,11 @@ func CreateVolunteer(c *gin.Context) {
 	}
 
 	volunteerInput := structs.Volunteer{
-		UserID:   input.UserID,
+		DonorID		: input.DonorID,
 		DisasterID: input.DisasterID,
-		Skill:    input.Skill,
-		Location: input.Location,
-		Status:   input.Status,
+		Skill			: input.Skill,
+		Location	: input.Location,
+		Status		: input.Status,
 	}
 
 	err := repository.CreateVolunteer(database.DbConnection, volunteerInput)
@@ -66,6 +66,7 @@ func CreateVolunteer(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /volunteers [get]
 func GetAllVolunteers(c *gin.Context) {
 	volunteers, err := repository.GetAllVolunteers(database.DbConnection)
@@ -91,6 +92,7 @@ func GetAllVolunteers(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 404 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /volunteers/{id} [get]
 func GetVolunteerByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -125,6 +127,7 @@ func GetVolunteerByID(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /volunteers/{id} [put]
 func UpdateVolunteer(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -145,7 +148,7 @@ func UpdateVolunteer(c *gin.Context) {
 	
 	volunteerInput := structs.Volunteer{
 		ID:       id,
-		UserID:   input.UserID,
+		DonorID:  input.DonorID,
 		DisasterID: input.DisasterID,
 		Skill:    input.Skill,
 		Location: input.Location,
@@ -182,6 +185,7 @@ func UpdateVolunteer(c *gin.Context) {
 // @Success 200 {object} structs.APIResponse
 // @Failure 400 {object} structs.APIResponse
 // @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
 // @Router /volunteers/{id} [delete]
 func DeleteVolunteer(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

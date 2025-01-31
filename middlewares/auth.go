@@ -12,7 +12,7 @@ func GenerateOTP() string {
 	n := make([]byte, 3)
 	_, err := rand.Read(n)
 	if err != nil {
-		panic(err) // Pastikan error terlihat
+		panic(err)
 	}
 
 	otp := fmt.Sprintf("%06d", int(n[0])%10*100000 + int(n[1])%1000 + int(n[2])%100)
