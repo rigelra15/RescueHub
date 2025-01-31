@@ -26,7 +26,7 @@ func CreateVolunteer(db *sql.DB, volunteer *structs.Volunteer) error {
 }
 
 func GetAllVolunteers(db *sql.DB) ([]structs.Volunteer, error) {
-	query := `SELECT id, user_id, disaster_id, name, skill, location, status, created_at, updated_at FROM volunteers`
+	query := `SELECT id, user_id, disaster_id, skill, location, status, created_at, updated_at FROM volunteers`
 	rows, err := db.Query(query)
 
 	if err != nil {
@@ -53,9 +53,19 @@ func GetAllVolunteers(db *sql.DB) ([]structs.Volunteer, error) {
 }
 
 func GetVolunteerByID(db *sql.DB, id int) (structs.Volunteer, error) {
-	query := `SELECT id, user_id, disaster_id, name, skill, location, status, created_at, updated_at FROM volunteers WHERE id = $1`
+	query := `SELECT id, user_id, disaster_id, skill, location, status, created_at, updated_at FROM volunteers WHERE id = $1`
 	var volunteer structs.Volunteer
-	err := db.QueryRow(query, id).Scan(&volunteer.ID, &volunteer.UserID, &volunteer.DisasterID, &volunteer.Skill, &volunteer.Location, &volunteer.Status, &volunteer.CreatedAt, &volunteer.UpdatedAt)
+
+	err := db.QueryRow(query, id).Scan(
+		&volunteer.ID,
+		&volunteer.UserID,
+		&volunteer.DisasterID,
+		&volunteer.Skill,
+		&volunteer.Location,
+		&volunteer.Status,
+		&volunteer.CreatedAt,
+		&volunteer.UpdatedAt,
+	)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -66,21 +76,7 @@ func GetVolunteerByID(db *sql.DB, id int) (structs.Volunteer, error) {
 	return volunteer, nil
 }
 
-func isVolunteerExists(db *sql.DB, id int) bool {
-	query := `SELECT id FROM volunteers WHERE id = $1`
-	err := db.QueryRow(query, id).Scan(&id)
-	return err == nil
-}
-
 func UpdateVolunteer(db *sql.DB, volunteer structs.Volunteer) error {
-	if !isValidVolunteerStatus(volunteer.Status) {
-		return errors.New("invalid volunteer status")
-	}
-
-	if !isVolunteerExists(db, volunteer.ID) {
-		return errors.New("volunteer not found")
-	}
-
 	var updateFields []string
 	var values []interface{}
 	counter := 1
@@ -106,6 +102,9 @@ func UpdateVolunteer(db *sql.DB, volunteer structs.Volunteer) error {
 		counter++
 	}
 	if volunteer.Status != "" {
+		if !isValidVolunteerStatus(volunteer.Status) {
+			return errors.New("invalid volunteer status")
+		}
 		updateFields = append(updateFields, "status = $"+strconv.Itoa(counter))
 		values = append(values, volunteer.Status)
 		counter++
@@ -125,6 +124,7 @@ func UpdateVolunteer(db *sql.DB, volunteer structs.Volunteer) error {
 	}
 	return nil
 }
+
 
 func DeleteVolunteer(db *sql.DB, id int) error {
 	sqlQuery := `DELETE FROM volunteers WHERE id=$1`

@@ -143,7 +143,6 @@ type UserInput struct {
 
 type UpdateUserInfoWithoutEmail struct {
 	Name    string `json:"name"`
-	Role    string `json:"role"`
 	Contact string `json:"contact"`
 }
 

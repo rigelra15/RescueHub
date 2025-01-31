@@ -175,13 +175,16 @@ func UpdateDistributionLog(c *gin.Context) {
 		return
 	}
 
-	layout := "02/01/2006 15:04"
-	parsedSentAt, err := time.Parse(layout, input.SentAt)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Format tanggal harus 'DD/MM/YYYY HH:mm'",
-		})
-		return
+	var parsedSentAt time.Time
+	if input.SentAt != "" {
+		layout := "02/01/2006 15:04"
+		parsedSentAt, err = time.Parse(layout, input.SentAt)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Format tanggal harus 'DD/MM/YYYY HH:mm'",
+			})
+			return
+		}
 	}
 
 	distributionLog := &structs.DistributionLog{
@@ -193,7 +196,10 @@ func UpdateDistributionLog(c *gin.Context) {
 		SenderName:    input.SenderName,
 		RecipientName: input.RecipientName,
 		QuantitySent:  input.QuantitySent,
-		SentAt:        parsedSentAt, 
+	}
+
+	if input.SentAt != "" {
+		distributionLog.SentAt = parsedSentAt
 	}
 
 	err = repository.UpdateDistributionLog(database.DbConnection, *distributionLog)
@@ -211,21 +217,8 @@ func UpdateDistributionLog(c *gin.Context) {
 		return
 	}
 
-	responseSentAt := parsedSentAt.Format(layout)
-
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Distribusi bantuan berhasil diperbarui",
-		"result": gin.H{
-			"id":             distributionLog.ID,
-			"logistic_id":    distributionLog.LogisticID,
-			"origin":         distributionLog.Origin,
-			"destination":    distributionLog.Destination,
-			"distance":       distributionLog.Distance,
-			"sender_name":    distributionLog.SenderName,
-			"recipient_name": distributionLog.RecipientName,
-			"quantity_sent":  distributionLog.QuantitySent,
-			"sent_at":        responseSentAt,
-		},
 	})
 }
 

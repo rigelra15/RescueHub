@@ -8,6 +8,11 @@ definitions:
         type: string
       result: {}
     type: object
+  structs.ChangeUserRole:
+    properties:
+      role:
+        type: string
+    type: object
   structs.Disaster:
     properties:
       created_at:
@@ -157,8 +162,6 @@ definitions:
         type: string
       name:
         type: string
-      role:
-        type: string
     type: object
   structs.User:
     properties:
@@ -214,7 +217,7 @@ definitions:
       user_id:
         type: integer
     type: object
-host: localhost:8080
+host: rescuehub-production.up.railway.app
 info:
   contact:
     name: Rigel Ramadhani W.
@@ -1855,6 +1858,47 @@ paths:
       security:
       - BearerAuth: []
       summary: Update user
+      tags:
+      - Users
+  /users/{id}/change-role:
+    put:
+      consumes:
+      - application/json
+      description: Mengubah role pengguna
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'List role: admin, donor, user'
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/structs.ChangeUserRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/structs.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Change user role
       tags:
       - Users
   /users/{id}/donations:

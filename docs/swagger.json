@@ -9,7 +9,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "rescuehub-production.up.railway.app",
     "basePath": "/api",
     "paths": {
         "/disasters": {
@@ -2744,6 +2744,70 @@
                 }
             }
         },
+        "/users/{id}/change-role": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengubah role pengguna",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Change user role",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "List role: admin, donor, user",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.ChangeUserRole"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/structs.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{id}/donations": {
             "get": {
                 "security": [
@@ -3161,6 +3225,14 @@
                 "result": {}
             }
         },
+        "structs.ChangeUserRole": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "structs.Disaster": {
             "type": "object",
             "properties": {
@@ -3388,9 +3460,6 @@
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "role": {
                     "type": "string"
                 }
             }

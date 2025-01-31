@@ -140,24 +140,51 @@ func UpdateVolunteer(c *gin.Context) {
 		return
 	}
 
-	var input structs.VolunteerInput
+	var input map[string]interface{}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Input tidak valid",
 		})
 		return
 	}
-	
-	volunteerInput := structs.Volunteer{
-		ID:       id,
-		UserID:  input.UserID,
-		DisasterID: input.DisasterID,
-		Skill:    input.Skill,
-		Location: input.Location,
-		Status:   input.Status,
+
+	volunteer := structs.Volunteer{ID: id}
+
+	if userID, exists := input["user_id"]; exists {
+		userIDInt, ok := userID.(float64)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User ID tidak valid"})
+			return
+		}
+		userIDIntConverted := int(userIDInt)
+		volunteer.UserID = &userIDIntConverted
+	}
+	if disasterID, exists := input["disaster_id"]; exists {
+		disasterIDInt, ok := disasterID.(float64)
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Disaster ID tidak valid"})
+			return
+		}
+		disasterIDIntConverted := int(disasterIDInt)
+		volunteer.DisasterID = &disasterIDIntConverted
+	}
+	if skill, exists := input["skill"]; exists {
+		if skillStr, ok := skill.(string); ok {
+			volunteer.Skill = skillStr
+		}
+	}
+	if location, exists := input["location"]; exists {
+		if locationStr, ok := location.(string); ok {
+			volunteer.Location = locationStr
+		}
+	}
+	if status, exists := input["status"]; exists {
+		if statusStr, ok := status.(string); ok {
+			volunteer.Status = statusStr
+		}
 	}
 
-	err = repository.UpdateVolunteer(database.DbConnection, volunteerInput)
+	err = repository.UpdateVolunteer(database.DbConnection, volunteer)
 	if err != nil {
 		if err.Error() == "invalid volunteer status" {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -165,14 +192,12 @@ func UpdateVolunteer(c *gin.Context) {
 			})
 			return
 		}
-
 		if err.Error() == "volunteer not found" {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Volunteer tidak ditemukan",
 			})
 			return
 		}
-
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Gagal mengupdate relawan",
 		})

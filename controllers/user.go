@@ -178,6 +178,20 @@ func isValidUserRole(role string) bool {
 	return false
 }
 
+// ChangeUserRole godoc
+// @Summary Change user role
+// @Description Mengubah role pengguna
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param role body structs.ChangeUserRole true "List role: admin, donor, user"
+// @Success 200 {object} structs.APIResponse
+// @Failure 400 {object} structs.APIResponse
+// @Failure 403 {object} structs.APIResponse
+// @Failure 500 {object} structs.APIResponse
+// @Security BearerAuth
+// @Router /users/{id}/change-role [put]
 func ChangeUserRole(c *gin.Context) {
 	var input struct {
 		Role string `json:"role"`
@@ -551,7 +565,6 @@ func UpdateUserInfoWithoutEmail(c *gin.Context) {
 	user := structs.User{
 		ID:         id,
 		Name: 		 	input.Name,
-		Role:       input.Role,
 		Contact:    input.Contact,
 	}
 

@@ -57,7 +57,7 @@ func GetAllEvacuationRoutes(db *sql.DB) ([]structs.EvacuationRoute, error) {
 }
 
 func GetEvacuationRouteByID(db *sql.DB, id int) (structs.EvacuationRoute, error) {
-	query := `SELECT id, disaster_id, start_location, end_location, status, created_at, updated_at FROM evacuation_routes WHERE id = $1`
+	query := `SELECT id, disaster_id, origin, destination, distance, route, status, created_at, updated_at FROM evacuation_routes WHERE id = $1`
 	var route structs.EvacuationRoute
 	err := db.QueryRow(query, id).Scan(&route.ID, &route.DisasterID, &route.Origin, &route.Destination, &route.Distance, &route.Route, &route.Status, &route.CreatedAt, &route.UpdatedAt)
 
